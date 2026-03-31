@@ -33,9 +33,10 @@ namespace CDBurner.ViewModel
         public HomeViewModel(INavigationService navigationService, IApiService apiService) {
             NavigationService = navigationService;
 
-            SearchCommand = new RelayCommand(_ =>
+            SearchCommand = new RelayCommand(async _ =>
             {
-                apiService.GetStudiesAsync(); // treba dodati parametre pretrage ovdje
+                // treba dodati parametre pretrage ovdje za medtodu ispod
+                Studies = new ObservableCollection<Study>(await apiService.GetStudiesAsync());
             });
 
             BurnOnCDCommand = new RelayCommand(_ =>

@@ -12,12 +12,17 @@ namespace CDBurner.Service
     public class ApiService : IApiService
     {
         private readonly HttpClient _httpClient;
-        private readonly string _baseUrl = "Base url"; //izdvojiti ovo
+        private readonly string _baseUrl;
 
         public ApiService()
         {
             _httpClient = new HttpClient();
-            //_httpClient.BaseAddress = new Uri(_baseUrl);
+
+            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            var json = File.ReadAllText(configPath);
+            var config = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+            var baseUrl = config["ApiBaseUrl"]; // ovo rjesiti
+            _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
         }
 
         public async Task<List<Study>> GetStudiesAsync()
