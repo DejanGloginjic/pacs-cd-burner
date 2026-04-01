@@ -17,66 +17,108 @@ namespace CDBurner.Service
         public ApiService()
         {
             _httpClient = new HttpClient();
-
+            
+            // Ovo osgiruati da ne pada aplikacija
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
             var json = File.ReadAllText(configPath);
-            var config = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
-            var baseUrl = config["ApiBaseUrl"]; // ovo rjesiti
-            _httpClient = new HttpClient { BaseAddress = new Uri(baseUrl) };
+            var config = JsonSerializer.Deserialize<AppConfigModel>(json);
+            _baseUrl = config.ApiBaseUrl;
+            _httpClient = new HttpClient { BaseAddress = new Uri(_baseUrl) };
         }
 
-        public async Task<List<Study>> GetStudiesAsync()
+        public async Task<List<StudyModel>> GetStudiesAsync(int currentPage, int pageSize, string keyword)
         {
             try
             {
-                var response = await _httpClient.GetAsync("studies");
+                // includefield: 00081030
+                // za svaki parametar trebace poseban poziv i onda konkatenacija na kraju
+                var response = await _httpClient.GetAsync($"?offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030");
 
                 if (!response.IsSuccessStatusCode)
                 {
-                    return new List<Study>();
+                    return new List<StudyModel>();
                 }
 
                 var json = await response.Content.ReadAsStringAsync();
 
                 if (string.IsNullOrWhiteSpace(json))
-                    return new List<Study>();
+                    return new List<StudyModel>();
 
-                var studies = JsonSerializer.Deserialize<List<Study>>(json);
+                var raw = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(json);
 
-                return studies ?? new List<Study>();
+                IObjectMapper mapper = new ObjectMapper();
+                return raw?.Select(mapper.MapStudy).ToList() ?? new List<StudyModel>();
             }
             catch (HttpRequestException)
             {
-                return new List<Study>();
+                return new List<StudyModel>();
             }
             catch (JsonException)
             {
-                return new List<Study>();
+                return new List<StudyModel>();
             }
             catch (Exception)
             {
-                return new List<Study>();
+                return new List<StudyModel>();
             }
         }
 
-        public async Task<bool> DownloadStudyAsync(string studyId, string destinationFolder)
+        public async Task<int> GetTotalStudiesCountAsync(string keyword)
         {
             try
             {
-                var response = await _httpClient.GetAsync($"studies/{studyId}/download");
+                var url = _baseUrl + "/count";
+
+                if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    // za svaki parametar trebace poseban poziv i onda konkatenacija na kraju
+                    // ovo sve isto vrijedi i za metodu iznad
+                    // izdvoji Uri.EscapeDataString(keyword)
+                    // PatientID
+                    // StudyDate za njega napraviti DateTime picker od-do, treba da ima poseban format u url-u
+                    // StudyDate=20240101-20261231&
+                    // StudyTime = 000000 - 235959
+                    url += $"?PatientName={Uri.EscapeDataString(keyword)}*"; // ovdje nije samo patient name
+                }
+
+                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+                request.Headers.Add("Accept", "application/json");
+
+                var response = await _httpClient.SendAsync(request);
+
+                if (!response.IsSuccessStatusCode)
+                    return 0;
+
+                var json = await response.Content.ReadAsStringAsync();
+                var obj = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
+
+                return obj != null && obj.ContainsKey("count") ? obj["count"] : 0;
+            }
+            catch
+            {
+                return 0;
+            }
+        }
+
+        public async Task<bool> DownloadStudyAsync(StudyModel study, string destinationFolder)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync(new Uri(study.Url));
 
                 if (!response.IsSuccessStatusCode)
                     return false;
 
                 Directory.CreateDirectory(destinationFolder);
 
-                var filePath = Path.Combine(destinationFolder, "study.zip");
+                var filePath = Path.Combine(destinationFolder, "study.zip"); // ovo jos nije definisan nacin na koji ce se cuvati
 
                 using var stream = await response.Content.ReadAsStreamAsync();
                 using var file = File.Create(filePath);
 
                 await stream.CopyToAsync(file);
 
+                // ovo jos nije definisan nacin na koji ce se cuvati
                 System.IO.Compression.ZipFile.ExtractToDirectory(filePath, destinationFolder, true);
 
                 return true;

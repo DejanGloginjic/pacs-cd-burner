@@ -7,8 +7,8 @@ namespace CDBurner.Service.Common
 {
     public interface IApiService
     {
-        Task<List<Study>> GetStudiesAsync();
-
-        Task<bool> DownloadStudyAsync(string studyId, string destinationFolder);
+        Task<List<StudyModel>> GetStudiesAsync(int currentPage, int pageSize, string keyword = "");
+        Task<int> GetTotalStudiesCountAsync(string keyword = "");
+        Task<bool> DownloadStudyAsync(StudyModel study, string destinationFolder);
     }
 }

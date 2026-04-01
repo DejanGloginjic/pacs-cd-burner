@@ -5,7 +5,7 @@ using System.Text;
 
 namespace CDBurner.Model
 {
-    public class Study : ObservableObject
+    public class StudyModel : ObservableObject
     {
         private string _id;
         public string Id { get => _id; set { _id = value; OnPropertyChanged(); } }
@@ -25,8 +25,11 @@ namespace CDBurner.Model
         private string _modality;
         public string Modality { get => _modality; set { _modality = value; OnPropertyChanged(); } }
 
-        private DateTime _date;
-        public DateTime Date { get => _date; set { _date = value; OnPropertyChanged(); } }
+        private DateTime _dateFrom;
+        public DateTime DateFrom { get => _dateFrom; set { _dateFrom = value; OnPropertyChanged(); } }
+
+        private DateTime _dateTo;
+        public DateTime DateTo { get => _dateTo; set { _dateTo = value; OnPropertyChanged(); } }
 
         private string _url;
         public string Url { get => _url; set { _url = value; OnPropertyChanged(); } }

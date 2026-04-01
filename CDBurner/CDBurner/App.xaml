@@ -10,9 +10,14 @@
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesign2.Defaults.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignThemes.Wpf;component/Themes/MaterialDesignTheme.Light.xaml" />
                 <ResourceDictionary Source="pack://application:,,,/MaterialDesignColors;component/Themes/Recommended/Primary/MaterialDesignColor.DeepPurple.xaml"/>
-                <ResourceDictionary Source="Resources/Themes/MainTheme.xaml" />
+                <ResourceDictionary Source="Resources/Theme/MainTheme.xaml" />
+                <ResourceDictionary Source="Resources/FontStyle/CustomFontStyle.xaml" />
+                <ResourceDictionary Source="Resources/Language/Resources.SR.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
+            <DataTemplate DataType="{x:Type viewModels:DialogViewModel}">
+                <view:DialogWindow/>
+            </DataTemplate>
 
             <DataTemplate DataType="{x:Type viewModels:HomeViewModel}">
                 <view:HomeView/>

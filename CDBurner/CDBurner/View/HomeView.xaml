@@ -5,8 +5,384 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CDBurner.View"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="800" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}"
+             xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
+             Style="{DynamicResource GlobalFontStyle}">
     <Grid>
-            
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="8" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="16" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="24" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="24" />
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="24" />
+        </Grid.ColumnDefinitions>
+
+        <Border Grid.Column="1" Grid.Row="0" 
+                Background="{DynamicResource PrimaryBrush}" 
+                CornerRadius="12" 
+                Padding="20,16">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
+                    <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4">
+                        <TextBox Width="320"
+                                 md:HintAssist.Hint="{DynamicResource Search}"
+                                 Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
+                                 Height="44"
+                                 FontSize="16"
+                                 FontWeight="Normal"
+                                 VerticalContentAlignment="Center"
+                                 Foreground="White"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Padding="12,0"/>
+                    </Border>
+
+                    <Button Command="{Binding SearchCommand}"
+                            Width="44"
+                            Height="44"
+                            Style="{StaticResource MaterialDesignFloatingActionButton}"
+                            Background="{DynamicResource HeaderBrush}"
+                            BorderThickness="0"
+                            Margin="12,0,0,0"
+                            ToolTip="{DynamicResource Search}">
+                        <md:PackIcon Kind="Search"
+                                     Width="22"
+                                     Height="22"
+                                     Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                    </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                    <Grid Margin="0,0,0,16">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
+                            <DatePicker Grid.Column="0"
+                                                SelectedDate="{Binding Study.DateFrom, Mode=TwoWay}" 
+                                                md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
+                                                Style="{StaticResource MaterialDesignDatePicker}"
+                                                Foreground="{DynamicResource SecondaryBrush}"
+                                                FontWeight="Bold"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="12,10"
+                                                FontSize="14"/>
+                        </Border>
+
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
+                            <md:TimePicker Grid.Column="2"
+                                              SelectedTime="{Binding Study.DateFrom, Mode=TwoWay}"
+                                              md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
+                                              Style="{StaticResource MaterialDesignTimePicker}"
+                                              Foreground="{DynamicResource SecondaryBrush}"
+                                               FontWeight="Bold"
+                                               Background="Transparent"
+                                              Padding="8,10"
+                                              FontSize="14"
+                                              Is24Hours="True"/>
+                        </Border>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="12"/>
+                            <ColumnDefinition Width="1*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
+                            <DatePicker Grid.Column="0"
+                                                SelectedDate="{Binding Study.DateTo, Mode=TwoWay}" 
+                                                md:HintAssist.Hint="{DynamicResource DateTimeTo}"
+                                                Style="{StaticResource MaterialDesignDatePicker}"
+                                                Foreground="{DynamicResource SecondaryBrush}"
+                                                FontWeight="Bold"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="12,10"
+                                                FontSize="14"/>
+                        </Border>
+
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
+                            <md:TimePicker Grid.Column="2"
+                                                   SelectedTime="{Binding Study.DateTo, Mode=TwoWay}"
+                                                   md:HintAssist.Hint="{DynamicResource DateTimeTo}"
+                                                   Style="{StaticResource MaterialDesignTimePicker}"
+                                                   Foreground="{DynamicResource SecondaryBrush}"
+                                                   FontWeight="Bold"
+                                                   Background="Transparent"
+                                                   Padding="8,10"
+                                                   FontSize="14"
+                                                   Is24Hours="True"/>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="2" Grid.Column="1" 
+                Background="{DynamicResource HeaderBrush}" 
+                CornerRadius="12,12,0,0"
+                Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="0.5*" />
+                    <ColumnDefinition Width="1.5*" />
+                    <ColumnDefinition Width="0.8*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="1*" />
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0" 
+                           Text="{DynamicResource PatientId}" 
+                           FontWeight="SemiBold" 
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="1" 
+                           Text="{DynamicResource Patient}"
+                           FontWeight="SemiBold" 
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="2" 
+                           Text="{DynamicResource PatientSex}" 
+                           FontWeight="SemiBold" 
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="3" 
+                           Text="{DynamicResource Physician}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center" 
+                           VerticalAlignment="Center" 
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="4" 
+                           Text="{DynamicResource Modality}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="5" 
+                           Text="{DynamicResource DateTimeFrom}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="6" 
+                           Text="{DynamicResource DateTimeTo}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock Grid.Column="7" 
+                           Text="{DynamicResource Options}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+            </Grid>
+        </Border>
+
+        <Border Grid.Row="4" Grid.Column="1" 
+                Background="{DynamicResource PrimaryBrush}" 
+                CornerRadius="0,0,12,12"
+                Padding="4">
+            <ListView ItemsSource="{Binding Studies}" 
+                      Cursor="Arrow" 
+                      HorizontalContentAlignment="Stretch"
+                      Background="Transparent"
+                      BorderThickness="0"
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Margin" Value="0,0,0,2"/>
+                        <Setter Property="Padding" Value="16,12"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#15FFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsSelected" Value="True">
+                                <Setter Property="Background" Value="#25FFFFFF"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition Width="0.5*" />
+                                <ColumnDefinition Width="1.5*" />
+                                <ColumnDefinition Width="0.8*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="1*" />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0"
+                                       Text="{Binding PatientId}"
+                                       FontSize="14"
+                                       FontWeight="Medium"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="1" 
+                                       Text="{Binding Patient, TargetNullValue='Nije uneseno'}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium"
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="2"
+                                       Text="{Binding PatientSex, TargetNullValue='Nije uneseno'}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium" 
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3" 
+                                       Text="{Binding Physician}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium" 
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="4" 
+                                       Text="{Binding Modality}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium"
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="5" 
+                                       Text="{Binding DateFrom}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium"
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="6" 
+                                       Text="{Binding DateTo}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium"
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
+
+                            <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Button Command="{Binding DataContext.BurnOnCDCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"
+                                        CommandParameter="{Binding}"
+                                        Width="36" Height="36"
+                                        Margin="0,0,12,0"
+                                        Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                                        Background="{DynamicResource HeaderBrush}"
+                                        BorderThickness="0"
+                                        ToolTip="{DynamicResource Burn}">
+                                    <md:PackIcon Kind="DiscPlayer" Width="18" Height="18" Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                                </Button>
+                                <Button Command="{Binding DataContext.DetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"
+                                        CommandParameter="{Binding}"
+                                        Width="36" Height="36"
+                                        Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                                        Background="{DynamicResource HeaderBrush}"
+                                        BorderThickness="0"
+                                        ToolTip="{DynamicResource Details}">
+                                    <md:PackIcon Kind="Text" Width="18" Height="18" Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                                </Button>
+                            </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </Border>
+
+        <Border Grid.Row="6" Grid.Column="1" 
+                Background="{DynamicResource PrimaryBrush}" 
+                CornerRadius="12" 
+                Padding="16,12">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                <Button Command="{Binding PreviousPageCommand}"
+                        Width="40"
+                        Height="40"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                        Background="{DynamicResource HeaderBrush}"
+                        BorderThickness="0"
+                        ToolTip="{DynamicResource PreviousPage}">
+                    <md:PackIcon Kind="ArrowLeft"
+                                 Width="20"
+                                 Height="20"
+                                 Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                </Button>
+
+                <Border Background="#20FFFFFF" 
+                        CornerRadius="8" 
+                        Padding="20,10" 
+                        Margin="16,0">
+                    <TextBlock Text="{Binding PaginationText}" 
+                               FontWeight="SemiBold" 
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="White"
+                               FontSize="14"/>
+                </Border>
+
+                <Button Command="{Binding NextPageCommand}"
+                        Width="40"
+                        Height="40"
+                        Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
+                        Background="{DynamicResource HeaderBrush}"
+                        BorderThickness="0"
+                        ToolTip="{DynamicResource NextPage}">
+                    <md:PackIcon Kind="ArrowRight"
+                                 Width="20"
+                                 Height="20"
+                                 Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                </Button>
+            </StackPanel>
+        </Border>
     </Grid>
 </UserControl>
