@@ -10,11 +10,18 @@
     <System:String x:Key="Modality">Modalitet</System:String>
     <System:String x:Key="DateTimeFrom">Datum od</System:String>
     <System:String x:Key="DateTimeTo">Datum do</System:String>
-    <System:String x:Key="Physician">Doktor</System:String>
+    <System:String x:Key="DateTime">Datum</System:String>
     <System:String x:Key="Description">Opis pregleda</System:String>
     <System:String x:Key="Burn">Nareži na CD</System:String>
     <System:String x:Key="Options">Opcije</System:String>
     <System:String x:Key="Details">Detalji</System:String>
     <System:String x:Key="NextPage">Sljedeća stranica</System:String>
     <System:String x:Key="PreviousPage">Prethodna stranica</System:String>
+    <System:String x:Key="Error">Greška</System:String>
+    <System:String x:Key="Confirmation">Potvrda</System:String>
+    <System:String x:Key="Question">Da li ste sigurni da želite narezati studiju na CD?</System:String>
+    <System:String x:Key="Yes">Da</System:String>
+    <System:String x:Key="No">Ne</System:String>
+    <System:String x:Key="Understand">Razumijem</System:String>
+    <System:String x:Key="Reset">Obriši pretragu</System:String>
 </ResourceDictionary>

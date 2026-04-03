@@ -9,6 +9,6 @@ namespace CDBurner.Service.Common
     {
         Task<List<StudyModel>> GetStudiesAsync(int currentPage, int pageSize, string keyword = "");
         Task<int> GetTotalStudiesCountAsync(string keyword = "");
-        Task<bool> DownloadStudyAsync(StudyModel study, string destinationFolder);
+        Task<bool> DownloadStudyAsync(string studyUrl, string destinationFolder);
     }
 }

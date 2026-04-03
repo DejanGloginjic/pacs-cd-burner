@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CDBurner.View"
+             xmlns:behavior="clr-namespace:CDBurner.Behavior"
              mc:Ignorable="d" 
              d:DesignHeight="800" d:DesignWidth="1200" Background="{DynamicResource WindowBackgroundBrush}"
              xmlns:md="http://materialdesigninxaml.net/winfx/xaml/themes"
@@ -28,7 +29,8 @@
         <Border Grid.Column="1" Grid.Row="0" 
                 Background="{DynamicResource PrimaryBrush}" 
                 CornerRadius="12" 
-                Padding="20,16">
+                Padding="20,16"
+                Margin="0,10,0,0">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*" />
@@ -36,11 +38,11 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
-                    <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4">
+                    <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="40">
                         <TextBox Width="320"
                                  md:HintAssist.Hint="{DynamicResource Search}"
-                                 Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged, Mode=OneWayToSource}"
-                                 Height="44"
+                                 Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                                 Height="24"
                                  FontSize="16"
                                  FontWeight="Normal"
                                  VerticalContentAlignment="Center"
@@ -51,8 +53,9 @@
                     </Border>
 
                     <Button Command="{Binding SearchCommand}"
-                            Width="44"
-                            Height="44"
+                            IsDefault="True"
+                            Width="32"
+                            Height="32"
                             Style="{StaticResource MaterialDesignFloatingActionButton}"
                             Background="{DynamicResource HeaderBrush}"
                             BorderThickness="0"
@@ -63,17 +66,31 @@
                                      Height="22"
                                      Foreground="{DynamicResource ButtonForegroundBrush}"/>
                     </Button>
+                    <Button Command="{Binding ResetCommand}"
+                            Visibility="{Binding IsResetVisible}"
+                            Width="32"
+                            Height="32"
+                            Style="{StaticResource MaterialDesignFloatingActionButton}"
+                            Background="{DynamicResource HeaderBrush}"
+                            BorderThickness="0"
+                            Margin="12,0,0,0"
+                            ToolTip="{DynamicResource Reset}">
+                        <md:PackIcon Kind="Close"
+                                     Width="22"
+                                     Height="22"
+                                     Foreground="{DynamicResource ButtonForegroundBrush}"/>
+                    </Button>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Grid Margin="0,0,0,16">
+                    <Grid Margin="0,0,40,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="50" Width="120">
                             <DatePicker Grid.Column="0"
                                                 SelectedDate="{Binding Study.DateFrom, Mode=TwoWay}" 
                                                 md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
@@ -86,7 +103,7 @@
                                                 FontSize="14"/>
                         </Border>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2" Height="50" Width="120">
                             <md:TimePicker Grid.Column="2"
                                               SelectedTime="{Binding Study.DateFrom, Mode=TwoWay}"
                                               md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
@@ -100,14 +117,14 @@
                         </Border>
                     </Grid>
 
-                    <Grid Margin="0,0,0,0">
+                    <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="50" Width="120">
                             <DatePicker Grid.Column="0"
                                                 SelectedDate="{Binding Study.DateTo, Mode=TwoWay}" 
                                                 md:HintAssist.Hint="{DynamicResource DateTimeTo}"
@@ -120,7 +137,7 @@
                                                 FontSize="14"/>
                         </Border>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2" Height="50" Width="120">
                             <md:TimePicker Grid.Column="2"
                                                    SelectedTime="{Binding Study.DateTo, Mode=TwoWay}"
                                                    md:HintAssist.Hint="{DynamicResource DateTimeTo}"
@@ -146,10 +163,9 @@
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="1.5*" />
                     <ColumnDefinition Width="0.5*" />
-                    <ColumnDefinition Width="1.5*" />
-                    <ColumnDefinition Width="0.8*" />
+                    <ColumnDefinition Width="0.5*" />
                     <ColumnDefinition Width="1*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="2*" />
                     <ColumnDefinition Width="1*" />
                 </Grid.ColumnDefinitions>
 
@@ -178,14 +194,6 @@
                            FontSize="14"
                            Opacity="0.95"/>
                 <TextBlock Grid.Column="3" 
-                           Text="{DynamicResource Physician}"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center" 
-                           VerticalAlignment="Center" 
-                           Foreground="White"
-                           FontSize="14"
-                           Opacity="0.95"/>
-                <TextBlock Grid.Column="4" 
                            Text="{DynamicResource Modality}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
@@ -193,8 +201,17 @@
                            Foreground="White"
                            FontSize="14"
                            Opacity="0.95"/>
+                <TextBlock Grid.Column="4" 
+                           Text="{DynamicResource DateTime}"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           Foreground="White"
+                           FontSize="14"
+                           Opacity="0.95"/>
+                <TextBlock />
                 <TextBlock Grid.Column="5" 
-                           Text="{DynamicResource DateTimeFrom}"
+                           Text="{DynamicResource Description}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -202,14 +219,6 @@
                            FontSize="14"
                            Opacity="0.95"/>
                 <TextBlock Grid.Column="6" 
-                           Text="{DynamicResource DateTimeTo}"
-                           FontWeight="SemiBold"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           Foreground="White"
-                           FontSize="14"
-                           Opacity="0.95"/>
-                <TextBlock Grid.Column="7" 
                            Text="{DynamicResource Options}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
@@ -224,25 +233,33 @@
                 Background="{DynamicResource PrimaryBrush}" 
                 CornerRadius="0,0,12,12"
                 Padding="4">
-            <ListView ItemsSource="{Binding Studies}" 
+            <ListView ItemsSource="{Binding Studies}"
+                      x:Name="StudiesListView"
+                      behavior:ListViewScrollBehavior.ScrollToTop="{Binding CurrentPage}"
                       Cursor="Arrow" 
                       HorizontalContentAlignment="Stretch"
                       Background="Transparent"
                       BorderThickness="0"
-                      ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                      ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                      AlternationCount="2">
+                <ListView.Resources>
+                    <Style TargetType="ScrollBar">
+                        <Setter Property="Background" Value="{DynamicResource HeaderBrush}"/>
+                    </Style>
+                </ListView.Resources>
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem" BasedOn="{StaticResource {x:Type ListViewItem}}">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                        <Setter Property="Margin" Value="0,0,0,2"/>
+                        <Setter Property="Margin" Value="0,0,0,0"/>
                         <Setter Property="Padding" Value="16,12"/>
                         <Setter Property="Background" Value="Transparent"/>
                         <Setter Property="BorderThickness" Value="0"/>
                         <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background" Value="#15FFFFFF"/>
+                            <Trigger Property="ItemsControl.AlternationIndex" Value="1">
+                                <Setter Property="Background" Value="#FF1E293B"/>
                             </Trigger>
-                            <Trigger Property="IsSelected" Value="True">
-                                <Setter Property="Background" Value="#25FFFFFF"/>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#FF475569"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -254,10 +271,9 @@
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="1.5*" />
                                 <ColumnDefinition Width="0.5*" />
-                                <ColumnDefinition Width="1.5*" />
-                                <ColumnDefinition Width="0.8*" />
+                                <ColumnDefinition Width="0.5*" />
                                 <ColumnDefinition Width="1*" />
-                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="2*" />
                                 <ColumnDefinition Width="1*" />
                             </Grid.ColumnDefinitions>
 
@@ -269,7 +285,7 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="1" 
-                                       Text="{Binding Patient, TargetNullValue='Nije uneseno'}" 
+                                       Text="{Binding Patient}" 
                                        FontSize="14" 
                                        FontWeight="Medium"
                                        Foreground="White" 
@@ -277,43 +293,35 @@
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="2"
-                                       Text="{Binding PatientSex, TargetNullValue='Nije uneseno'}" 
+                                       Text="{Binding PatientSex}" 
                                        FontSize="14" 
                                        FontWeight="Medium" 
                                        Foreground="White" 
                                        HorizontalAlignment="Center" 
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="3" 
-                                       Text="{Binding Physician}" 
-                                       FontSize="14" 
-                                       FontWeight="Medium" 
-                                       Foreground="White" 
-                                       HorizontalAlignment="Center" 
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Column="4" 
                                        Text="{Binding Modality}" 
                                        FontSize="14" 
                                        FontWeight="Medium"
                                        Foreground="White" 
                                        HorizontalAlignment="Center" 
                                        VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="4" 
+                                       Text="{Binding Date, StringFormat=dd/MM/yyyy   HH:mm}" 
+                                       FontSize="14" 
+                                       FontWeight="Medium"
+                                       Foreground="White" 
+                                       HorizontalAlignment="Center" 
+                                       VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="5" 
-                                       Text="{Binding DateFrom}" 
+                                       Text="{Binding Description}" 
                                        FontSize="14" 
                                        FontWeight="Medium"
                                        Foreground="White" 
+                                       TextWrapping="Wrap"
                                        HorizontalAlignment="Center" 
                                        VerticalAlignment="Center"/>
-                            <TextBlock Grid.Column="6" 
-                                       Text="{Binding DateTo}" 
-                                       FontSize="14" 
-                                       FontWeight="Medium"
-                                       Foreground="White" 
-                                       HorizontalAlignment="Center" 
-                                       VerticalAlignment="Center"/>
-
-                            <StackPanel Grid.Column="7" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+                            <StackPanel Grid.Column="6" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
                                 <Button Command="{Binding DataContext.BurnOnCDCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"
                                         CommandParameter="{Binding}"
                                         Width="36" Height="36"
@@ -323,15 +331,6 @@
                                         BorderThickness="0"
                                         ToolTip="{DynamicResource Burn}">
                                     <md:PackIcon Kind="DiscPlayer" Width="18" Height="18" Foreground="{DynamicResource ButtonForegroundBrush}"/>
-                                </Button>
-                                <Button Command="{Binding DataContext.DetailsCommand, RelativeSource={RelativeSource AncestorType={x:Type ListView}}}"
-                                        CommandParameter="{Binding}"
-                                        Width="36" Height="36"
-                                        Style="{StaticResource MaterialDesignFloatingActionMiniButton}"
-                                        Background="{DynamicResource HeaderBrush}"
-                                        BorderThickness="0"
-                                        ToolTip="{DynamicResource Details}">
-                                    <md:PackIcon Kind="Text" Width="18" Height="18" Foreground="{DynamicResource ButtonForegroundBrush}"/>
                                 </Button>
                             </StackPanel>
                         </Grid>

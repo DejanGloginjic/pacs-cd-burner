@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net.Http;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 
@@ -30,9 +31,26 @@ namespace CDBurner.Service
         {
             try
             {
-                // includefield: 00081030
-                // za svaki parametar trebace poseban poziv i onda konkatenacija na kraju
-                var response = await _httpClient.GetAsync($"?offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030");
+                string urlParams = $"?offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030";
+
+                // StudyDate=20240101-20261231&
+                // StudyTime = 000000-235959
+                if (!string.IsNullOrWhiteSpace(keyword))
+                {
+                    string input = keyword.Trim();
+                    bool isId = input.All(char.IsDigit);
+
+                    if (isId)
+                    {
+                        urlParams += $"&PatientID={Uri.EscapeDataString(keyword)}*";
+                    }
+                    else
+                    {
+                        urlParams += $"&PatientName={Uri.EscapeDataString(keyword)}*";
+                    }
+                }
+
+                var response = await _httpClient.GetAsync(urlParams);
 
                 if (!response.IsSuccessStatusCode)
                 {
@@ -71,14 +89,19 @@ namespace CDBurner.Service
 
                 if (!string.IsNullOrWhiteSpace(keyword))
                 {
-                    // za svaki parametar trebace poseban poziv i onda konkatenacija na kraju
-                    // ovo sve isto vrijedi i za metodu iznad
-                    // izdvoji Uri.EscapeDataString(keyword)
-                    // PatientID
-                    // StudyDate za njega napraviti DateTime picker od-do, treba da ima poseban format u url-u
                     // StudyDate=20240101-20261231&
-                    // StudyTime = 000000 - 235959
-                    url += $"?PatientName={Uri.EscapeDataString(keyword)}*"; // ovdje nije samo patient name
+                    // StudyTime = 000000-235959
+                    string input = keyword.Trim();
+                    bool isId = input.All(char.IsDigit);
+
+                    if (isId)
+                    {
+                        url += $"?PatientID={Uri.EscapeDataString(keyword)}*";
+                    }
+                    else
+                    {
+                        url += $"?PatientName={Uri.EscapeDataString(keyword)}*";
+                    }
                 }
 
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
@@ -100,11 +123,11 @@ namespace CDBurner.Service
             }
         }
 
-        public async Task<bool> DownloadStudyAsync(StudyModel study, string destinationFolder)
+        public async Task<bool> DownloadStudyAsync(string studyUrl, string destinationFolder)
         {
             try
             {
-                var response = await _httpClient.GetAsync(new Uri(study.Url));
+                var response = await _httpClient.GetAsync(new Uri(studyUrl));
 
                 if (!response.IsSuccessStatusCode)
                     return false;

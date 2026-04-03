@@ -1,33 +1,20 @@
 ﻿using CDBurner.Service.Common;
-using System;
-using CDBurner.ViewModel;
 using CDBurner.View;
+using CDBurner.ViewModel;
+using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Windows;
 
 namespace CDBurner.Service
 {
     public class DialogService : IDialogService
     {
-        public void ShowInfo(string message)
-        {
-            var vm = new DialogViewModel
-            {
-                Title = "Info",
-                Message = message,
-                IsOkVisible = Visibility.Visible,
-                IsYesNoVisible = Visibility.Collapsed
-            };
-
-            var dialog = new DialogWindow(vm);
-            dialog.ShowDialog();
-        }
-
         public void ShowError(string message)
         {
             var vm = new DialogViewModel
             {
-                Title = "Error",
+                Title = Application.Current.Resources["Error"] as string,
                 Message = message,
                 IsOkVisible = Visibility.Visible,
                 IsYesNoVisible = Visibility.Collapsed
@@ -41,7 +28,7 @@ namespace CDBurner.Service
         {
             var vm = new DialogViewModel
             {
-                Title = "Confirm",
+                Title = Application.Current.Resources["Confirmation"] as string,
                 Message = message,
                 IsOkVisible = Visibility.Collapsed,
                 IsYesNoVisible = Visibility.Visible

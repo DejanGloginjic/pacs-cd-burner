@@ -6,42 +6,53 @@
         xmlns:local="clr-namespace:CDBurner.View"
         WindowStartupLocation="CenterScreen"
         ResizeMode="NoResize"
-        SizeToContent="WidthAndHeight"
-        WindowStyle="None"
-        Background="White"
-        AllowsTransparency="True">
-    <Border CornerRadius="10" Padding="20" Background="White" BorderBrush="#ccc" BorderThickness="1">
+        SizeToContent="WidthAndHeight">
+    <Border Padding="20" Background="{DynamicResource WindowBackgroundBrush}" 
+            BorderBrush="#ccc" BorderThickness="1" CornerRadius="4">
         <StackPanel Width="300">
-
             <TextBlock Text="{Binding Title}" 
-                       FontSize="18" 
-                       FontWeight="Bold" 
+                       FontSize="24"
+                       FontWeight="Bold"
+                       Foreground="White"
                        Margin="0,0,0,10"/>
 
-            <TextBlock Text="{Binding Message}" 
+            <TextBlock Text="{Binding Message}"
+                       FontSize="16"
                        TextWrapping="Wrap"
+                       Foreground="White"
                        Margin="0,0,0,20"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <Button Content="OK"
-                        Width="80"
+                <Button Content="{DynamicResource Understand}"
+                        Width="Auto"
+                        Height="30"
                         Margin="5"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="{DynamicResource SecondaryBrush}"
+                        BorderThickness="0"
                         Visibility="{Binding IsOkVisible}"
                         Command="{Binding OkCommand}"/>
 
-                <Button Content="Yes"
+                <Button Content="{DynamicResource Yes}"
                         Width="80"
+                        Height="30"
                         Margin="5"
+                        Style="{StaticResource MaterialDesignRaisedButton}"
+                        Background="{DynamicResource SecondaryBrush}"
+                        BorderThickness="0"
                         Visibility="{Binding IsYesNoVisible}"
                         Command="{Binding YesCommand}"/>
 
-                <Button Content="No"
+                <Button Content="{DynamicResource No}"
                         Width="80"
+                        Height="30"
                         Margin="5"
+                        Style="{StaticResource MaterialDesignOutlinedButton}"
+                        Foreground="White"
+                        BorderThickness="1"
                         Visibility="{Binding IsYesNoVisible}"
                         Command="{Binding NoCommand}"/>
             </StackPanel>
-
         </StackPanel>
     </Border>
 </Window>

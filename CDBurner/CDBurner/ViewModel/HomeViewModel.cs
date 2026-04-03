@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Text;
 using System.Text.Json;
+using System.Windows;
 using System.Windows.Input;
 
 namespace CDBurner.ViewModel
@@ -58,7 +59,17 @@ namespace CDBurner.ViewModel
         }
 
         public string PaginationText => TotalStudiesCount == 0 ? "Nema rezultata" : $"Stranica {CurrentPage} od {(int)Math.Ceiling((double)TotalStudiesCount / PageSize)}";
-
+        
+        private Visibility _isResetVisible = Visibility.Collapsed;
+        public Visibility IsResetVisible
+        {
+            get => _isResetVisible;
+            set
+            {
+                _isResetVisible = value;
+                OnPropertyChanged();
+            }
+        }
 
         private ObservableCollection<StudyModel> _studies;
         public ObservableCollection<StudyModel> Studies
@@ -68,12 +79,12 @@ namespace CDBurner.ViewModel
         }
 
         public ICommand SearchCommand { get; }
-        public ICommand DetailsCommand { get; }
+        public ICommand ResetCommand { get; }
         public ICommand NextPageCommand { get; }
         public ICommand PreviousPageCommand { get; }
         public ICommand BurnOnCDCommand { get; }
 
-        public HomeViewModel(INavigationService navigationService, IApiService apiService) {
+        public HomeViewModel(INavigationService navigationService, IApiService apiService, IDialogService dialogService) {
             NavigationService = navigationService;
 
             // Ovo osigruati da ne pada aplikacija
@@ -86,15 +97,20 @@ namespace CDBurner.ViewModel
 
             SearchCommand = new RelayCommand(async _ =>
             {
+                // NE ZNAM DA LI DA NAPRAVIM DA SE NA DATUM KLIKNE PA OPET OVDJE ILI DA ODMAH SALJE KADA ODABERE DATUM
+                if (!string.IsNullOrWhiteSpace(Keyword)) //ovdje i datum provjeriti
+                    IsResetVisible = Visibility.Visible;
+                CurrentPage = 1;
                 await LoadStudiesAsync(apiService);
             });
 
-            DetailsCommand = new RelayCommand(async obj =>
+            ResetCommand = new RelayCommand(async _ =>
             {
-                if (obj is StudyModel study)
-                {
-                    // otvori dialog box i prikazi detalje
-                }
+                CurrentPage = 1;
+                Keyword = String.Empty;
+                IsResetVisible = Visibility.Collapsed;
+                //datume isto ali
+                await LoadStudiesAsync(apiService);
             });
 
             NextPageCommand = new RelayCommand(async _ =>
@@ -109,13 +125,16 @@ namespace CDBurner.ViewModel
                 await LoadStudiesAsync(apiService);
             }, _ => CurrentPage > 1);
 
-            BurnOnCDCommand = new RelayCommand(async obj => // ovdje staviti study objekat i vidjeti da li ide async
+            BurnOnCDCommand = new RelayCommand(async obj =>
             {
+                bool isConfirmed = dialogService.ShowConfirmation(Application.Current.Resources["Question"] as string);
+                if (!isConfirmed)
+                    return;
+
                 if (obj is StudyModel study)
                 {
-                    await apiService.DownloadStudyAsync(study, ""); // dodati putanju ovdje
+                    bool success = await apiService.DownloadStudyAsync(study.Url, ""); // dodati putanju ovdje
                 }
-                // Otvoriti dialog pitati da li je korisnik siguran da to zeli
                 // Logika za narezivanje
             });
         }

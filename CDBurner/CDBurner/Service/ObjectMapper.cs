@@ -31,6 +31,38 @@ namespace CDBurner.Service
                 return null;
             }
 
+            string dateStr = Get("00080020");
+            string timeStr = Get("00080030");
+
+            DateTime date = DateTime.MinValue;
+            if (!string.IsNullOrEmpty(dateStr))
+            {
+                try
+                {
+                    int year = int.Parse(dateStr.Substring(0, 4));
+                    int month = int.Parse(dateStr.Substring(4, 2));
+                    int day = int.Parse(dateStr.Substring(6, 2));
+
+                    int hour = 0, minute = 0, second = 0;
+
+                    if (!string.IsNullOrEmpty(timeStr))
+                    {
+                        if (timeStr.Length >= 6)
+                        {
+                            hour = int.Parse(timeStr.Substring(0, 2));
+                            minute = int.Parse(timeStr.Substring(2, 2));
+                            second = int.Parse(timeStr.Substring(4, 2));
+                        }
+                    }
+
+                    date = new DateTime(year, month, day, hour, minute, second);
+                }
+                catch
+                {
+                    date = DateTime.MinValue;
+                }
+            }
+
             return new StudyModel
             {
                 Id = Get("0020000D"),
@@ -40,7 +72,7 @@ namespace CDBurner.Service
                 Modality = Get("00080061"),
                 Description = Get("00081030"),
                 Url = Get("00081190"),
-                Physician = Get("00080090")
+                Date = date
             };
         }
     }
