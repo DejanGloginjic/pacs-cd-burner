@@ -1,5 +1,7 @@
 ﻿using CDBurner.Model;
 using CDBurner.Service.Common;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -27,95 +29,60 @@ namespace CDBurner.Service
             _httpClient = new HttpClient { BaseAddress = new Uri(_baseUrl) };
         }
 
-        public async Task<List<StudyModel>> GetStudiesAsync(int currentPage, int pageSize, string keyword)
+        public async Task<List<StudyModel>> GetStudiesAsync(int currentPage,
+                                                            int pageSize,
+                                                            string keyword,
+                                                            DateTime? dateFrom,
+                                                            DateTime? dateTo)
         {
             try
             {
-                string urlParams = $"?offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030";
+                string urlParams = BuildQueryParams(keyword, dateFrom, dateTo);
 
-                // StudyDate=20240101-20261231&
-                // StudyTime = 000000-235959
-                if (!string.IsNullOrWhiteSpace(keyword))
+                if (string.IsNullOrWhiteSpace(urlParams))
                 {
-                    string input = keyword.Trim();
-                    bool isId = input.All(char.IsDigit);
-
-                    if (isId)
-                    {
-                        urlParams += $"&PatientID={Uri.EscapeDataString(keyword)}*";
-                    }
-                    else
-                    {
-                        urlParams += $"&PatientName={Uri.EscapeDataString(keyword)}*";
-                    }
+                    urlParams += $"?offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030";
+                }
+                else
+                {
+                    urlParams += $"&offset={(currentPage - 1) * pageSize}&limit={pageSize}&includefield=00081030";
                 }
 
                 var response = await _httpClient.GetAsync(urlParams);
-
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new List<StudyModel>();
-                }
+                if (!response.IsSuccessStatusCode) return new List<StudyModel>();
 
                 var json = await response.Content.ReadAsStringAsync();
-
-                if (string.IsNullOrWhiteSpace(json))
-                    return new List<StudyModel>();
+                if (string.IsNullOrWhiteSpace(json)) return new List<StudyModel>();
 
                 var raw = JsonSerializer.Deserialize<List<Dictionary<string, JsonElement>>>(json);
 
                 IObjectMapper mapper = new ObjectMapper();
                 return raw?.Select(mapper.MapStudy).ToList() ?? new List<StudyModel>();
             }
-            catch (HttpRequestException)
-            {
-                return new List<StudyModel>();
-            }
-            catch (JsonException)
-            {
-                return new List<StudyModel>();
-            }
-            catch (Exception)
+            catch
             {
                 return new List<StudyModel>();
             }
         }
 
-        public async Task<int> GetTotalStudiesCountAsync(string keyword)
+        public async Task<int> GetTotalStudiesCountAsync(string keyword,
+                                                         DateTime? dateFrom,
+                                                         DateTime? dateTo)
         {
             try
             {
-                var url = _baseUrl + "/count";
-
-                if (!string.IsNullOrWhiteSpace(keyword))
-                {
-                    // StudyDate=20240101-20261231&
-                    // StudyTime = 000000-235959
-                    string input = keyword.Trim();
-                    bool isId = input.All(char.IsDigit);
-
-                    if (isId)
-                    {
-                        url += $"?PatientID={Uri.EscapeDataString(keyword)}*";
-                    }
-                    else
-                    {
-                        url += $"?PatientName={Uri.EscapeDataString(keyword)}*";
-                    }
-                }
+                var url = _baseUrl + "/count" + BuildQueryParams(keyword, dateFrom, dateTo);
 
                 using var request = new HttpRequestMessage(HttpMethod.Get, url);
                 request.Headers.Add("Accept", "application/json");
 
                 var response = await _httpClient.SendAsync(request);
-
-                if (!response.IsSuccessStatusCode)
-                    return 0;
+                if (!response.IsSuccessStatusCode) return 0;
 
                 var json = await response.Content.ReadAsStringAsync();
                 var obj = JsonSerializer.Deserialize<Dictionary<string, int>>(json);
 
-                return obj != null && obj.ContainsKey("count") ? obj["count"] : 0;
+                return obj != null && obj.TryGetValue("count", out int count) ? count : 0;
             }
             catch
             {
@@ -127,41 +94,85 @@ namespace CDBurner.Service
         {
             try
             {
-                var response = await _httpClient.GetAsync(new Uri(studyUrl));
+                var response = await _httpClient.GetAsync(studyUrl);
+                response.EnsureSuccessStatusCode();
 
-                if (!response.IsSuccessStatusCode)
-                    return false;
+                var contentType = response.Content.Headers.ContentType;
+                if (!contentType.MediaType.Equals("multipart/related", StringComparison.OrdinalIgnoreCase))
+                    throw new Exception("Unexpected content type: " + contentType.MediaType);
+
+                var boundary = contentType.Parameters.First(p => p.Name == "boundary").Value.Trim('"');
 
                 Directory.CreateDirectory(destinationFolder);
 
-                var filePath = Path.Combine(destinationFolder, "study.zip"); // ovo jos nije definisan nacin na koji ce se cuvati
-
                 using var stream = await response.Content.ReadAsStreamAsync();
-                using var file = File.Create(filePath);
+                var reader = new Microsoft.AspNetCore.WebUtilities.MultipartReader(boundary, stream);
 
-                await stream.CopyToAsync(file);
+                MultipartSection section;
+                int index = 0;
 
-                // ovo jos nije definisan nacin na koji ce se cuvati
-                System.IO.Compression.ZipFile.ExtractToDirectory(filePath, destinationFolder, true);
+                while ((section = await reader.ReadNextSectionAsync()) != null)
+                {
+                    string filename = null;
+
+                    if (section.Headers.TryGetValue("Content-Disposition", out var values))
+                    {
+                        var contentDisposition = values.FirstOrDefault();
+                        if (!string.IsNullOrEmpty(contentDisposition))
+                        {
+                            var match = System.Text.RegularExpressions.Regex.Match(
+                                contentDisposition,
+                                @"filename\*?=(?:UTF-8'')?""?(?<fname>[^\"";]+)""?");
+                            if (match.Success)
+                                filename = match.Groups["fname"].Value;
+                        }
+                    }
+
+                    if (string.IsNullOrEmpty(filename))
+                        filename = $"img_{index}.dcm";
+
+                    var filePath = Path.Combine(destinationFolder, filename);
+
+                    using var fileStream = File.Create(filePath);
+                    await section.Body.CopyToAsync(fileStream);
+
+                    index++;
+                }
 
                 return true;
             }
-            catch (HttpRequestException)
+            catch
             {
                 return false;
             }
-            catch (IOException)
+        }
+
+        private string BuildQueryParams(string keyword, DateTime? dateFrom, DateTime? dateTo)
+        {
+            var query = new List<string>();
+
+            if (!string.IsNullOrWhiteSpace(keyword))
             {
-                return false;
+                string input = keyword.Trim();
+                bool isId = input.All(char.IsDigit);
+                query.Add((isId ? "PatientID" : "PatientName") + "=" + Uri.EscapeDataString(keyword) + "*");
             }
-            catch (System.IO.InvalidDataException)
+
+            if (dateFrom.HasValue || dateTo.HasValue)
             {
-                return false;
+                string fromDate = dateFrom?.ToString("yyyyMMdd") ?? "";
+                string toDate = dateTo?.ToString("yyyyMMdd") ?? "";
+                string fromTime = dateFrom?.ToString("HHmmss") ?? "";
+                string toTime = dateTo?.ToString("HHmmss") ?? "";
+
+                query.Add($"StudyDate={fromDate}-{toDate}");
+                query.Add($"StudyTime={fromTime}-{toTime}");
             }
-            catch (Exception)
-            {
-                return false;
-            }
+
+            if (query.Count == 0)
+                return "";
+
+            return "?" + string.Join("&", query);
         }
     }
 }

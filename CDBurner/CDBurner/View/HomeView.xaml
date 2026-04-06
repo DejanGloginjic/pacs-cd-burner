@@ -90,64 +90,64 @@
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="50" Width="120">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
                             <DatePicker Grid.Column="0"
-                                                SelectedDate="{Binding Study.DateFrom, Mode=TwoWay}" 
-                                                md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
-                                                Style="{StaticResource MaterialDesignDatePicker}"
-                                                Foreground="{DynamicResource SecondaryBrush}"
-                                                FontWeight="Bold"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                Padding="12,10"
-                                                FontSize="14"/>
+                                        SelectedDate="{Binding DateFrom, Mode=TwoWay}" 
+                                        md:HintAssist.Hint="{DynamicResource DateFrom}"
+                                        Style="{StaticResource MaterialDesignDatePicker}"
+                                        Foreground="White"
+                                        FontWeight="Bold"
+                                        BorderThickness="0"
+                                        Padding="12,10"
+                                        Width="120"
+                                        FontSize="14"/>
                         </Border>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2" Height="50" Width="120">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
                             <md:TimePicker Grid.Column="2"
-                                              SelectedTime="{Binding Study.DateFrom, Mode=TwoWay}"
-                                              md:HintAssist.Hint="{DynamicResource DateTimeFrom}"
-                                              Style="{StaticResource MaterialDesignTimePicker}"
-                                              Foreground="{DynamicResource SecondaryBrush}"
-                                               FontWeight="Bold"
-                                               Background="Transparent"
-                                              Padding="8,10"
-                                              FontSize="14"
-                                              Is24Hours="True"/>
+                                            SelectedTime="{Binding DateFrom, Mode=TwoWay}"
+                                            md:HintAssist.Hint="{DynamicResource TimeFrom}"
+                                            Style="{StaticResource MaterialDesignTimePicker}"
+                                            Foreground="White"
+                                            FontWeight="Bold"
+                                            Padding="8,10"
+                                            FontSize="14"
+                                            Width="120"
+                                            Is24Hours="True"/>
                         </Border>
                     </Grid>
 
-                    <Grid>
+                    <Grid Margin="0,0,0,0">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="1*"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="50" Width="120">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" >
                             <DatePicker Grid.Column="0"
-                                                SelectedDate="{Binding Study.DateTo, Mode=TwoWay}" 
-                                                md:HintAssist.Hint="{DynamicResource DateTimeTo}"
-                                                Style="{StaticResource MaterialDesignDatePicker}"
-                                                Foreground="{DynamicResource SecondaryBrush}"
-                                                FontWeight="Bold"
-                                                Background="Transparent"
-                                                BorderThickness="0"
-                                                Padding="12,10"
-                                                FontSize="14"/>
+                                        SelectedDate="{Binding DateTo, Mode=TwoWay}" 
+                                        md:HintAssist.Hint="{DynamicResource DateTo}"
+                                        Style="{StaticResource MaterialDesignDatePicker}"
+                                        Foreground="White"
+                                        FontWeight="Bold"
+                                        BorderThickness="0"
+                                        Width="120"
+                                        Padding="12,10"
+                                        FontSize="14"/>
                         </Border>
 
-                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2" Height="50" Width="120">
+                        <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Grid.Column="2">
                             <md:TimePicker Grid.Column="2"
-                                                   SelectedTime="{Binding Study.DateTo, Mode=TwoWay}"
-                                                   md:HintAssist.Hint="{DynamicResource DateTimeTo}"
-                                                   Style="{StaticResource MaterialDesignTimePicker}"
-                                                   Foreground="{DynamicResource SecondaryBrush}"
-                                                   FontWeight="Bold"
-                                                   Background="Transparent"
-                                                   Padding="8,10"
-                                                   FontSize="14"
-                                                   Is24Hours="True"/>
+                                            SelectedTime="{Binding DateTo, Mode=TwoWay}"
+                                            md:HintAssist.Hint="{DynamicResource TimeTo}"
+                                            Style="{StaticResource MaterialDesignTimePicker}"
+                                            Foreground="White"
+                                            FontWeight="Bold"
+                                            Padding="8,10"
+                                            FontSize="14"
+                                            Width="120"
+                                            Is24Hours="True"/>
                         </Border>
                     </Grid>
                 </StackPanel>
@@ -166,7 +166,7 @@
                     <ColumnDefinition Width="0.5*" />
                     <ColumnDefinition Width="1*" />
                     <ColumnDefinition Width="2*" />
-                    <ColumnDefinition Width="1*" />
+                    <ColumnDefinition Width="0.5*" />
                 </Grid.ColumnDefinitions>
 
                 <TextBlock Grid.Column="0" 
@@ -202,7 +202,7 @@
                            FontSize="14"
                            Opacity="0.95"/>
                 <TextBlock Grid.Column="4" 
-                           Text="{DynamicResource DateTime}"
+                           Text="{DynamicResource Date}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -219,7 +219,7 @@
                            FontSize="14"
                            Opacity="0.95"/>
                 <TextBlock Grid.Column="6" 
-                           Text="{DynamicResource Options}"
+                           Text="{DynamicResource Burn}"
                            FontWeight="SemiBold"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"
@@ -274,7 +274,7 @@
                                 <ColumnDefinition Width="0.5*" />
                                 <ColumnDefinition Width="1*" />
                                 <ColumnDefinition Width="2*" />
-                                <ColumnDefinition Width="1*" />
+                                <ColumnDefinition Width="0.5*"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0"

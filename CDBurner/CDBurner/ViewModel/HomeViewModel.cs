@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Security.Policy;
 using System.Text;
 using System.Text.Json;
 using System.Windows;
@@ -20,6 +21,13 @@ namespace CDBurner.ViewModel
         {
             get => _keyword;
             set { _keyword = value; OnPropertyChanged(); }
+        }
+
+        private string _appliedKeyword;
+        public string AppliedKeyword
+        {
+            get => _appliedKeyword;
+            set { _appliedKeyword = value; OnPropertyChanged(); }
         }
 
         private int _currentPage = 1;
@@ -71,11 +79,44 @@ namespace CDBurner.ViewModel
             }
         }
 
+        private double _progressBarValue;
+        public double ProgressBarValue
+        {
+            get => _progressBarValue;
+            set
+            {
+                _progressBarValue = value;
+                OnPropertyChanged();
+            }
+        }
+
         private ObservableCollection<StudyModel> _studies;
         public ObservableCollection<StudyModel> Studies
         {
             get => _studies;
             set { _studies = value; OnPropertyChanged(); }
+        }
+
+        private DateTime? _dateFrom;
+        public DateTime? DateFrom
+        {
+            get => _dateFrom;
+            set
+            {
+                _dateFrom = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private DateTime? _dateTo;
+        public DateTime? DateTo
+        {
+            get => _dateTo;
+            set
+            {
+                _dateTo = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand SearchCommand { get; }
@@ -97,8 +138,9 @@ namespace CDBurner.ViewModel
 
             SearchCommand = new RelayCommand(async _ =>
             {
+                AppliedKeyword = Keyword;
                 // NE ZNAM DA LI DA NAPRAVIM DA SE NA DATUM KLIKNE PA OPET OVDJE ILI DA ODMAH SALJE KADA ODABERE DATUM
-                if (!string.IsNullOrWhiteSpace(Keyword)) //ovdje i datum provjeriti
+                if (!string.IsNullOrWhiteSpace(AppliedKeyword) || DateFrom != null || DateTo != null)
                     IsResetVisible = Visibility.Visible;
                 CurrentPage = 1;
                 await LoadStudiesAsync(apiService);
@@ -107,9 +149,13 @@ namespace CDBurner.ViewModel
             ResetCommand = new RelayCommand(async _ =>
             {
                 CurrentPage = 1;
+
                 Keyword = String.Empty;
+                AppliedKeyword = String.Empty;
+
+                DateFrom = null;
+                DateTo = null;
                 IsResetVisible = Visibility.Collapsed;
-                //datume isto ali
                 await LoadStudiesAsync(apiService);
             });
 
@@ -131,20 +177,34 @@ namespace CDBurner.ViewModel
                 if (!isConfirmed)
                     return;
 
+                var progress = new Progress<double>(percent =>
+                {
+                    ProgressBarValue = percent; // this updates your bound ProgressBar
+                });
+
                 if (obj is StudyModel study)
                 {
-                    bool success = await apiService.DownloadStudyAsync(study.Url, ""); // dodati putanju ovdje
+                    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DICOM");
+
+                    bool success = await apiService.DownloadStudyAsync(study.Url, path);
+
+                    // procesirati i ovaj success da znamo da li je skinuto ili ne
+                    
+                    // NAPRAVITI DA MOZDA OTVORI NEKI TRANSPARENTNI PROZOR KOJI NEDA DA SE STISNE NA GLAVNI EKRAN
+                    // 1. Preuzimanje...
+                    // 2. Progress bar za snimanje na cd i ispis postotka
+                    
+                    // Logika za narezivanje
                 }
-                // Logika za narezivanje
             });
         }
 
         private async Task LoadStudiesAsync(IApiService apiService)
         {
-            var list = await apiService.GetStudiesAsync(CurrentPage, PageSize, Keyword);
+            var list = await apiService.GetStudiesAsync(CurrentPage, PageSize, AppliedKeyword, DateFrom, DateTo);
             Studies = new ObservableCollection<StudyModel>(list);
 
-            TotalStudiesCount = await apiService.GetTotalStudiesCountAsync(Keyword);
+            TotalStudiesCount = await apiService.GetTotalStudiesCountAsync(AppliedKeyword, DateFrom, DateTo);
         }
     }
 }
