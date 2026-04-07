@@ -31,6 +31,7 @@ namespace CDBurner
             service.AddSingleton<INavigationService, NavigationService>();
             service.AddSingleton<IApiService, ApiService>();
             service.AddSingleton<IDialogService, DialogService>();
+            service.AddSingleton<IBurnerService, BurnerService>();
             service.AddSingleton<Func<Type, ViewModelBase>>(serviceProvider => viewModelType => (ViewModelBase)serviceProvider.GetRequiredService(viewModelType));
 
             _serviceProvider = service.BuildServiceProvider();

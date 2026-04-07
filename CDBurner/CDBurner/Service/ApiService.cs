@@ -133,8 +133,11 @@ namespace CDBurner.Service
 
                     var filePath = Path.Combine(destinationFolder, filename);
 
-                    using var fileStream = File.Create(filePath);
-                    await section.Body.CopyToAsync(fileStream);
+                    using (var fileStream = File.Create(filePath))
+                    {
+                        await section.Body.CopyToAsync(fileStream);
+                        await fileStream.FlushAsync();
+                    }
 
                     index++;
                 }

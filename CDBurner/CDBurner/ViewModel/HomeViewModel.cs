@@ -11,6 +11,8 @@ using System.Text;
 using System.Text.Json;
 using System.Windows;
 using System.Windows.Input;
+using static System.Net.Mime.MediaTypeNames;
+using Application = System.Windows.Application;
 
 namespace CDBurner.ViewModel
 {
@@ -86,6 +88,7 @@ namespace CDBurner.ViewModel
             set
             {
                 _progressBarValue = value;
+                System.Diagnostics.Debug.WriteLine($"Percentage: {value}"); //brisi
                 OnPropertyChanged();
             }
         }
@@ -125,7 +128,8 @@ namespace CDBurner.ViewModel
         public ICommand PreviousPageCommand { get; }
         public ICommand BurnOnCDCommand { get; }
 
-        public HomeViewModel(INavigationService navigationService, IApiService apiService, IDialogService dialogService) {
+        public HomeViewModel(INavigationService navigationService, IApiService apiService, IDialogService dialogService,
+                             IBurnerService burnerService) {
             NavigationService = navigationService;
 
             // Ovo osigruati da ne pada aplikacija
@@ -177,25 +181,45 @@ namespace CDBurner.ViewModel
                 if (!isConfirmed)
                     return;
 
+                if (obj is not StudyModel study)
+                    return;
+
+                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                                           "CDBurner", "DICOM");
+                bool success = await apiService.DownloadStudyAsync(study.Url, path);
+
+                if (!success)
+                {
+                    dialogService.ShowError(Application.Current.Resources["DownloadStudiesError"] as string);
+                    return;
+                }
+
                 var progress = new Progress<double>(percent =>
                 {
-                    ProgressBarValue = percent; // this updates your bound ProgressBar
+                    ProgressBarValue = percent;
                 });
 
-                if (obj is StudyModel study)
+                try
                 {
-                    string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "DICOM");
+                    bool burnSuccess = await burnerService.BurnFolderAsync(path, progress);
 
-                    bool success = await apiService.DownloadStudyAsync(study.Url, path);
+                    if (!burnSuccess)
+                    {
+                        dialogService.ShowError(Application.Current.Resources["BurnOnCdFailed"] as string);
+                        return;
+                    }
 
-                    // procesirati i ovaj success da znamo da li je skinuto ili ne
-                    
-                    // NAPRAVITI DA MOZDA OTVORI NEKI TRANSPARENTNI PROZOR KOJI NEDA DA SE STISNE NA GLAVNI EKRAN
-                    // 1. Preuzimanje...
-                    // 2. Progress bar za snimanje na cd i ispis postotka
-                    
-                    // Logika za narezivanje
+                    dialogService.ShowInformation(Application.Current.Resources["BurnOnCdSuccessful"] as string);
+                    Directory.Delete(path, true);
                 }
+                catch (Exception ex)
+                {
+                    dialogService.ShowError(ex.Message);
+                }
+                // napraviti da izlista mozda drivere
+                // NAPRAVITI DA MOZDA OTVORI NEKI TRANSPARENTNI PROZOR KOJI NEDA DA SE STISNE NA GLAVNI EKRAN
+                // 1. Preuzimanje...
+                // 2. Progress bar za snimanje na cd i ispis postotka
             });
         }
 

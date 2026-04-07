@@ -19,8 +19,12 @@
     <System:String x:Key="NextPage">Sljedeća stranica</System:String>
     <System:String x:Key="PreviousPage">Prethodna stranica</System:String>
     <System:String x:Key="Error">Greška</System:String>
+    <System:String x:Key="Information">Informacija</System:String>
     <System:String x:Key="Confirmation">Potvrda</System:String>
-    <System:String x:Key="Question">Da li ste sigurni da želite narezati studiju na CD?</System:String>
+    <System:String x:Key="Question">Da li ste sigurni da želite snimiti studiju na CD?</System:String>
+    <System:String x:Key="DownloadStudiesError">Nije moguće preuzeti studije.</System:String>
+    <System:String x:Key="BurnOnCdFailed">Nije moguće snimiti studiju na CD.</System:String>
+    <System:String x:Key="BurnOnCdSuccessful">Studija uspješno snimljena na CD.</System:String>
     <System:String x:Key="Yes">Da</System:String>
     <System:String x:Key="No">Ne</System:String>
     <System:String x:Key="Understand">Razumijem</System:String>

@@ -24,6 +24,20 @@ namespace CDBurner.Service
             dialog.ShowDialog();
         }
 
+        public void ShowInformation(string message)
+        {
+            var vm = new DialogViewModel
+            {
+                Title = Application.Current.Resources["Information"] as string,
+                Message = message,
+                IsOkVisible = Visibility.Visible,
+                IsYesNoVisible = Visibility.Collapsed
+            };
+
+            var dialog = new DialogWindow(vm);
+            dialog.ShowDialog();
+        }
+
         public bool ShowConfirmation(string message)
         {
             var vm = new DialogViewModel
