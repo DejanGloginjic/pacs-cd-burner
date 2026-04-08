@@ -17,7 +17,8 @@ namespace CDBurner.Service
                 Title = Application.Current.Resources["Error"] as string,
                 Message = message,
                 IsOkVisible = Visibility.Visible,
-                IsYesNoVisible = Visibility.Collapsed
+                IsYesNoVisible = Visibility.Collapsed,
+                IsProgressVisible = Visibility.Collapsed
             };
 
             var dialog = new DialogWindow(vm);
@@ -31,7 +32,8 @@ namespace CDBurner.Service
                 Title = Application.Current.Resources["Information"] as string,
                 Message = message,
                 IsOkVisible = Visibility.Visible,
-                IsYesNoVisible = Visibility.Collapsed
+                IsYesNoVisible = Visibility.Collapsed,
+                IsProgressVisible = Visibility.Collapsed
             };
 
             var dialog = new DialogWindow(vm);
@@ -45,13 +47,43 @@ namespace CDBurner.Service
                 Title = Application.Current.Resources["Confirmation"] as string,
                 Message = message,
                 IsOkVisible = Visibility.Collapsed,
-                IsYesNoVisible = Visibility.Visible
+                IsYesNoVisible = Visibility.Visible,
+                IsProgressVisible = Visibility.Collapsed,
             };
 
             var dialog = new DialogWindow(vm);
             dialog.ShowDialog();
 
             return vm.Result;
+        }
+
+        public DialogViewModel ShowProgress(string message)
+        {
+            var vm = new DialogViewModel
+            {
+                Title = Application.Current.Resources["BurnOnCdProgress"] as string,
+                Message = message,
+                IsOkVisible = Visibility.Collapsed,
+                IsYesNoVisible = Visibility.Collapsed,
+                IsProgressVisible = Visibility.Visible,
+                Progress = 0
+            };
+
+            var mainWindow = Application.Current.MainWindow;
+            var dialog = new DialogWindow(vm)
+            {
+                Owner = mainWindow
+            };
+            mainWindow.IsEnabled = false;
+
+            dialog.Closed += (s, e) =>
+            {
+                mainWindow.IsEnabled = true;
+            };
+
+            dialog.Show();
+
+            return vm;
         }
     }
 }

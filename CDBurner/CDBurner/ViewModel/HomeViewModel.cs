@@ -81,18 +81,6 @@ namespace CDBurner.ViewModel
             }
         }
 
-        private double _progressBarValue;
-        public double ProgressBarValue
-        {
-            get => _progressBarValue;
-            set
-            {
-                _progressBarValue = value;
-                System.Diagnostics.Debug.WriteLine($"Percentage: {value}"); //brisi
-                OnPropertyChanged();
-            }
-        }
-
         private ObservableCollection<StudyModel> _studies;
         public ObservableCollection<StudyModel> Studies
         {
@@ -184,42 +172,43 @@ namespace CDBurner.ViewModel
                 if (obj is not StudyModel study)
                     return;
 
-                string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                                           "CDBurner", "DICOM");
-                bool success = await apiService.DownloadStudyAsync(study.Url, path);
-
-                if (!success)
-                {
-                    dialogService.ShowError(Application.Current.Resources["DownloadStudiesError"] as string);
-                    return;
-                }
-
-                var progress = new Progress<double>(percent =>
-                {
-                    ProgressBarValue = percent;
-                });
+                var progressVM = dialogService.ShowProgress(Application.Current.Resources["DownloadingProgress"] as string);
+                bool finalSuccess = false;
 
                 try
                 {
-                    bool burnSuccess = await burnerService.BurnFolderAsync(path, progress);
+                    string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+                                               "CDBurner", "DICOM");
+                    bool success = await apiService.DownloadStudyAsync(study.Url, path);
 
-                    if (!burnSuccess)
+                    if (!success)
+                        throw new Exception(Application.Current.Resources["DownloadStudiesError"] as string);
+                    
+                    progressVM.Message = Application.Current.Resources["BurningProgress"] as string;
+                    var progress = new Progress<double>(p =>
                     {
-                        dialogService.ShowError(Application.Current.Resources["BurnOnCdFailed"] as string);
-                        return;
-                    }
+                        progressVM.Progress = p;
+                    });
 
-                    dialogService.ShowInformation(Application.Current.Resources["BurnOnCdSuccessful"] as string);
+                    bool burnSuccess = await burnerService.BurnFolderAsync(path, progress);
+                    if (!burnSuccess)
+                        throw new Exception(Application.Current.Resources["BurnOnCdFailed"] as string);
+
                     Directory.Delete(path, true);
+                    finalSuccess = true;
                 }
                 catch (Exception ex)
                 {
-                    dialogService.ShowError(ex.Message);
+                    progressVM.IsProgressVisible = Visibility.Collapsed;
+                    progressVM.Message = ex.Message;
+                    progressVM.IsOkVisible = Visibility.Visible;
+
+                    return;
                 }
-                // napraviti da izlista mozda drivere
-                // NAPRAVITI DA MOZDA OTVORI NEKI TRANSPARENTNI PROZOR KOJI NEDA DA SE STISNE NA GLAVNI EKRAN
-                // 1. Preuzimanje...
-                // 2. Progress bar za snimanje na cd i ispis postotka
+
+                progressVM.IsProgressVisible = Visibility.Collapsed;
+                progressVM.Message = Application.Current.Resources["BurnOnCdSuccessful"] as string;
+                progressVM.IsOkVisible = Visibility.Visible;
             });
         }
 

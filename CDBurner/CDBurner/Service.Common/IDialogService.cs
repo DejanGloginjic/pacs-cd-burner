@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CDBurner.ViewModel;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,5 +10,6 @@ namespace CDBurner.Service.Common
         void ShowError(string message);
         void ShowInformation(string message);
         bool ShowConfirmation(string message);
+        DialogViewModel ShowProgress(string message);
     }
 }

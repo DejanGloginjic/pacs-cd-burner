@@ -2,6 +2,7 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:System="clr-namespace:System;assembly=mscorlib">
 
+    <System:String x:Key="CDBurnerAppName">Računari - CD snimač</System:String>
     <System:String x:Key="Search">Pretraži</System:String>
     <System:String x:Key="Patient">Pacijent</System:String>
     <System:String x:Key="PatientId">Id pacijenta</System:String>
@@ -25,6 +26,9 @@
     <System:String x:Key="DownloadStudiesError">Nije moguće preuzeti studije.</System:String>
     <System:String x:Key="BurnOnCdFailed">Nije moguće snimiti studiju na CD.</System:String>
     <System:String x:Key="BurnOnCdSuccessful">Studija uspješno snimljena na CD.</System:String>
+    <System:String x:Key="BurnOnCdProgress">Prebacivanje na CD.</System:String>
+    <System:String x:Key="DownloadingProgress">Preuzimanje...</System:String>
+    <System:String x:Key="BurningProgress">Narezivanje na CD...</System:String>
     <System:String x:Key="Yes">Da</System:String>
     <System:String x:Key="No">Ne</System:String>
     <System:String x:Key="Understand">Razumijem</System:String>
