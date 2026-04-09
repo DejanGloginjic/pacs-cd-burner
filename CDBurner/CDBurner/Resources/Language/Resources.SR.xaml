@@ -4,6 +4,7 @@
 
     <System:String x:Key="CDBurnerAppName">Računari - CD snimač</System:String>
     <System:String x:Key="Search">Pretraži</System:String>
+    <System:String x:Key="SearchPrompt">Pretraži (Ime, prezime ili ID pacijenta)</System:String>
     <System:String x:Key="Patient">Pacijent</System:String>
     <System:String x:Key="PatientId">Id pacijenta</System:String>
     <System:String x:Key="PatientSex">Pol</System:String>

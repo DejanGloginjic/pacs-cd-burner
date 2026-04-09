@@ -96,6 +96,8 @@ namespace CDBurner.ViewModel
             {
                 _dateFrom = value;
                 OnPropertyChanged();
+                if (SearchCommand.CanExecute(null))
+                    SearchCommand.Execute(null);
             }
         }
 
@@ -107,6 +109,8 @@ namespace CDBurner.ViewModel
             {
                 _dateTo = value;
                 OnPropertyChanged();
+                if (SearchCommand.CanExecute(null))
+                    SearchCommand.Execute(null);
             }
         }
 
@@ -120,7 +124,6 @@ namespace CDBurner.ViewModel
                              IBurnerService burnerService) {
             NavigationService = navigationService;
 
-            // Ovo osigruati da ne pada aplikacija
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
             var json = File.ReadAllText(configPath);
             var config = JsonSerializer.Deserialize<AppConfigModel>(json);
@@ -131,7 +134,6 @@ namespace CDBurner.ViewModel
             SearchCommand = new RelayCommand(async _ =>
             {
                 AppliedKeyword = Keyword;
-                // NE ZNAM DA LI DA NAPRAVIM DA SE NA DATUM KLIKNE PA OPET OVDJE ILI DA ODMAH SALJE KADA ODABERE DATUM
                 if (!string.IsNullOrWhiteSpace(AppliedKeyword) || DateFrom != null || DateTo != null)
                     IsResetVisible = Visibility.Visible;
                 CurrentPage = 1;

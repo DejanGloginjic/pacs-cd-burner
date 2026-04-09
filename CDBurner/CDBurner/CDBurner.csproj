@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <ApplicationIcon>Resources\Icon\logo.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -34,6 +35,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="config.json" />
+    <None Remove="Resources\Icon\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <COMReference Include="IMAPI2">
       <WrapperTool>tlbimp</WrapperTool>
       <VersionMinor>0</VersionMinor>
@@ -55,6 +61,13 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="config.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Resources\Icon\logo.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MaterialDesignColors" Version="5.3.1" />
     <PackageReference Include="MaterialDesignThemes" Version="5.3.1" />
     <PackageReference Include="Microsoft.AspNetCore.WebUtilities" Version="10.0.5" />
@@ -62,7 +75,15 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Resources\Icon\" />
+    <Content Include="StaticFiles\**\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Resources\Icon\logo.ico">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
   </ItemGroup>
 
 </Project>

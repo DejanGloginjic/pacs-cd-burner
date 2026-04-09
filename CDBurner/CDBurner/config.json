@@ -1,0 +1,4 @@
+{
+  "ApiBaseUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "PageSize": 20
+}

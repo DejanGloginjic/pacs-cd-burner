@@ -40,7 +40,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal" HorizontalAlignment="Left">
                     <Border Background="{DynamicResource TextBoxBackgroundBrush}" CornerRadius="8" Padding="4" Height="40">
                         <TextBox Width="320"
-                                 md:HintAssist.Hint="{DynamicResource Search}"
+                                 md:HintAssist.Hint="{DynamicResource SearchPrompt}"
                                  Text="{Binding Keyword, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
                                  Height="24"
                                  FontSize="16"

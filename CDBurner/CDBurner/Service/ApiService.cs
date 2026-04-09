@@ -21,7 +21,6 @@ namespace CDBurner.Service
         {
             _httpClient = new HttpClient();
             
-            // Ovo osgiruati da ne pada aplikacija
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
             var json = File.ReadAllText(configPath);
             var config = JsonSerializer.Deserialize<AppConfigModel>(json);
