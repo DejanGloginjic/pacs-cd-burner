@@ -1,2 +1,0 @@
-JAVA_VERSION="24.0.2"
-MODULES="java.base java.compiler java.datatransfer java.xml java.prefs java.desktop java.logging java.management java.net.http java.transaction.xa java.sql jdk.charsets jdk.crypto.cryptoki jdk.crypto.ec jdk.crypto.mscapi jdk.jdwp.agent jdk.localedata"

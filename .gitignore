@@ -23,3 +23,5 @@ Publish/
 *.pdb
 *.mdb
 *.vsix
+
+StaticFiles/
