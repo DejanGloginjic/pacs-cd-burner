@@ -9,11 +9,33 @@ namespace CDBurner.ViewModel
 {
     public class DialogViewModel : ViewModelBase
     {
-        public string Title { get; set; }
-        public string Message { get; set; }
+        private string _title;
+        public string Title 
+        {
+            get => _title;
+            set { _title = value; OnPropertyChanged(); }
+        }
 
-        public Visibility IsOkVisible { get; set; } = Visibility.Visible;
-        public Visibility IsYesNoVisible { get; set; } = Visibility.Collapsed;
+        private string _message;
+        public string Message
+        {
+            get => _message;
+            set { _message = value; OnPropertyChanged(); }
+        }
+
+        private Visibility _isOkVisible;
+        public Visibility IsOkVisible 
+        {
+            get => _isOkVisible;
+            set { _isOkVisible = value; OnPropertyChanged(); }
+        }
+
+        private Visibility _isYesNoVisible;
+        public Visibility IsYesNoVisible 
+        { 
+            get => _isYesNoVisible;
+            set { _isYesNoVisible = value; OnPropertyChanged(); }
+        }
 
         public ICommand OkCommand { get; }
         public ICommand YesCommand { get; }

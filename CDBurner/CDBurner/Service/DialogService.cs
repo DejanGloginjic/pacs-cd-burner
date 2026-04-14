@@ -57,7 +57,7 @@ namespace CDBurner.Service
             return vm.Result;
         }
 
-        public DialogViewModel ShowProgress(string message)
+        public DialogViewModel ShowProgress(string message, Visibility isProgressVisible = Visibility.Visible)
         {
             var vm = new DialogViewModel
             {
@@ -65,22 +65,11 @@ namespace CDBurner.Service
                 Message = message,
                 IsOkVisible = Visibility.Collapsed,
                 IsYesNoVisible = Visibility.Collapsed,
-                IsProgressVisible = Visibility.Visible,
+                IsProgressVisible = isProgressVisible,
                 Progress = 0
             };
 
-            var mainWindow = Application.Current.MainWindow;
-            var dialog = new DialogWindow(vm)
-            {
-                Owner = mainWindow
-            };
-            mainWindow.IsEnabled = false;
-
-            dialog.Closed += (s, e) =>
-            {
-                mainWindow.IsEnabled = true;
-            };
-
+            var dialog = new DialogWindow(vm);
             dialog.Show();
 
             return vm;

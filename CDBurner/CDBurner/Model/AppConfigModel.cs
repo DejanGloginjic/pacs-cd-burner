@@ -8,5 +8,7 @@ namespace CDBurner.Model
     {
         public string ApiBaseUrl { get; set; }
         public int PageSize { get; set; }
+        public long CdLimit { get; set; }
+        public long DvdLimit { get; set; }
     }
 }

@@ -12,6 +12,7 @@
         <StackPanel Width="300">
             <TextBlock Text="{Binding Title}" 
                        FontSize="24"
+                       TextWrapping="Wrap"
                        FontWeight="Bold"
                        Foreground="White"
                        Margin="0,0,0,10"/>
