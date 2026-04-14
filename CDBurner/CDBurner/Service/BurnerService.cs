@@ -1,11 +1,11 @@
 ﻿using CDBurner.Service.Common;
-using IMAPI2;
-using IMAPI2FS;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Shell32;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Windows.Controls;
 using Application = System.Windows.Application;
 
 namespace CDBurner.Service
@@ -14,68 +14,84 @@ namespace CDBurner.Service
     {
         public async Task<bool> BurnFolderAsync(string folderPath, IProgress<double> progress = null)
         {
-            if (!Directory.Exists(folderPath))
-                throw new DirectoryNotFoundException(folderPath);
-
-            MsftDiscRecorder2 recorder = null;
-            MsftFileSystemImage fsImage = null;
-            IFileSystemImageResult resultImage = null;
-            MsftDiscFormat2Data discFormat = null;
+            // TESTIRAJ SVE
+            string tempBurnFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(tempBurnFolder);
 
             try
             {
-                recorder = new MsftDiscRecorder2();
-                recorder.InitializeDiscRecorder(null);
+                // 🔹 Static files from bin
+                string staticFilesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StaticFiles");
 
-                fsImage = new MsftFileSystemImage();
-                fsImage.ChooseImageDefaults((IMAPI2FS.IDiscRecorder2)recorder);
-                fsImage.FileSystemsToCreate = FsiFileSystems.FsiFileSystemUDF | FsiFileSystems.FsiFileSystemJoliet;
-                fsImage.VolumeName = "DICOM_CD";
+                // 🔹 Merge folders
+                CopyDirectory(folderPath, Path.Combine(tempBurnFolder, "DICOM"));
+                CopyDirectory(staticFilesPath, tempBurnFolder);
 
-                fsImage.Root.AddTree(folderPath, false);
-                resultImage = fsImage.CreateResultImage();
+                // 🔹 Find DVD drive (NO Shell32)
+                var dvdDrive = DriveInfo
+                    .GetDrives()
+                    .FirstOrDefault(d => d.DriveType == DriveType.CDRom && d.IsReady);
 
-                discFormat = new MsftDiscFormat2Data
+                if (dvdDrive == null)
+                    throw new Exception("No DVD drive found.");
+
+                // 🔹 Start Windows burn staging
+                var shell = new Shell32.Shell();
+                var source = shell.NameSpace(tempBurnFolder);
+                var target = shell.NameSpace(dvdDrive.RootDirectory.FullName);
+
+                target.CopyHere(source.Items(), 20);
+
+                // 🔹 Progress (staging estimation)
+                await Task.Run(() =>
                 {
-                    Recorder = recorder,
-                    ClientName = Application.Current.Resources["CDBurnerAppName"] as string,
-                    ForceMediaToBeClosed = true
-                };
+                    int lastCount = -1;
 
-                discFormat.Update += (sender, eObj) =>
-                {
-                    if (eObj is IDiscFormat2DataEventArgs e && e.TotalTime > 0)
+                    while (true)
                     {
-                        double percent = (double)e.ElapsedTime / e.TotalTime * 100;
-                        progress?.Report(percent);
+                        int count = Directory.GetFiles(tempBurnFolder, "*", SearchOption.AllDirectories).Length;
+
+                        if (count != lastCount)
+                        {
+                            progress?.Report(100 - (count * 100.0 / (count + 1)));
+                            lastCount = count;
+                        }
+
+                        if (count == 0)
+                            break;
+
+                        Thread.Sleep(500);
                     }
-                };
+                });
 
-                await Task.Run(() => discFormat.Write((IMAPI2.IStream)resultImage.ImageStream));
                 progress?.Report(100);
-
                 return true;
-            }
-            catch (COMException ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return false;
-            }
-            catch(Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(ex.Message);
-                return false;
             }
             finally
             {
-                Marshal.ReleaseComObject(resultImage);
-                Marshal.ReleaseComObject(fsImage);
-                Marshal.ReleaseComObject(discFormat);
-                Marshal.ReleaseComObject(recorder);
+                try
+                {
+                    if (Directory.Exists(tempBurnFolder))
+                        Directory.Delete(tempBurnFolder, true);
+                }
+                catch { }
+            }
+        }
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
+        private void CopyDirectory(string sourceDir, string targetDir)
+        {
+            Directory.CreateDirectory(targetDir);
+
+            foreach (var file in Directory.GetFiles(sourceDir))
+            {
+                var dest = Path.Combine(targetDir, Path.GetFileName(file));
+                File.Copy(file, dest, true);
+            }
+
+            foreach (var dir in Directory.GetDirectories(sourceDir))
+            {
+                var dest = Path.Combine(targetDir, Path.GetFileName(dir));
+                CopyDirectory(dir, dest);
             }
         }
     }
