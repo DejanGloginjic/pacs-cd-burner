@@ -27,6 +27,11 @@
     <System:String x:Key="RequiredDisc">Neophodan disk</System:String>
     <System:String x:Key="CdOrDvd">CD ili DVD</System:String>
     <System:String x:Key="Dvd">DVD</System:String>
+    <System:String x:Key="DiscNotEmpty">Umetnuti optički disk nije prazan! Molimo Vas ubacite prazan optički disk.</System:String>
+    <System:String x:Key="DiscLimitExceeded">Podaci premašuju kapacitet optičkog diska. Nije moguće nastaviti snimanje.</System:String>
+    <System:String x:Key="DiscNotFound">Optički disk nije pronađen.</System:String>
+    <System:String x:Key="DriveNotFound">Uređaj ne posjeduje drajver za optički disk.</System:String>
+    <System:String x:Key="DiscVolumeName">Studija</System:String>
     <System:String x:Key="FilesTooLarge">Fajlovi su preveliki za snimanje na optički disk</System:String>
     <System:String x:Key="Question">Da li ste sigurni da želite snimiti studiju na optički disk?</System:String>
     <System:String x:Key="DownloadStudiesError">Nije moguće preuzeti studije.</System:String>

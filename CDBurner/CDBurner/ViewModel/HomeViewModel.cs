@@ -177,7 +177,6 @@ namespace CDBurner.ViewModel
 
                 var progressVM = dialogService.ShowProgress(Application.Current.Resources["DownloadingProgress"] as string,
                                                             Visibility.Collapsed);
-                bool finalSuccess = false;
 
                 try
                 {
@@ -188,19 +187,18 @@ namespace CDBurner.ViewModel
                     if (!success)
                         throw new Exception(Application.Current.Resources["DownloadStudiesError"] as string);
 
-                    //
-                    long folderSize = new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
+                    long dicomFolderSize = new DirectoryInfo(path).EnumerateFiles("*", SearchOption.AllDirectories).Sum(f => f.Length);
                     long cdLimit = config.CdLimit;
                     long dvdLimit = config.DvdLimit;
 
                     string recommendedDisc =
-                        folderSize <= cdLimit ? Application.Current.Resources["CdOrDvd"] as string :
-                        folderSize <= dvdLimit ? Application.Current.Resources["Dvd"] as string :
+                        dicomFolderSize <= cdLimit ? Application.Current.Resources["CdOrDvd"] as string :
+                        dicomFolderSize <= dvdLimit ? Application.Current.Resources["Dvd"] as string :
                         Application.Current.Resources["FilesTooLarge"] as string;
 
                     bool proceed = dialogService.ShowConfirmation(
                         $"{Application.Current.Resources["DownloadingFinished"] as string}\n" +
-                        $"{Application.Current.Resources["StudySize"] as string}: {folderSize / 1024 / 1024} MB\n" +
+                        $"{Application.Current.Resources["StudySize"] as string}: {dicomFolderSize / 1024 / 1024} MB\n" +
                         $"{Application.Current.Resources["RequiredDisc"] as string}: {recommendedDisc}\n\n" +
                         Application.Current.Resources["ContinueBurningProgress"] as string
                     );
@@ -209,10 +207,12 @@ namespace CDBurner.ViewModel
                     {
                         progressVM.Message = Application.Current.Resources["BurnOnCdCanceled"] as string;
                         progressVM.IsOkVisible = Visibility.Visible;
-                        Directory.Delete(path, true);
+                        if (Directory.Exists(path))
+                        {
+                            Directory.Delete(path, true);
+                        }
                         return;
                     }
-                    //
 
                     progressVM.Message = Application.Current.Resources["BurningProgress"] as string;
                     progressVM.IsProgressVisible = Visibility.Visible;
@@ -221,12 +221,14 @@ namespace CDBurner.ViewModel
                         progressVM.Progress = p;
                     });
 
-                    bool burnSuccess = await burnerService.BurnFolderAsync(path, progress);
+                    bool burnSuccess = await burnerService.BurnFolderAsync(path, dicomFolderSize, progress);
                     if (!burnSuccess)
                         throw new Exception(Application.Current.Resources["BurnOnCdFailed"] as string);
 
-                    Directory.Delete(path, true);
-                    finalSuccess = true;
+                    if (Directory.Exists(path))
+                    {
+                        Directory.Delete(path, true);
+                    }
                 }
                 catch (Exception ex)
                 {

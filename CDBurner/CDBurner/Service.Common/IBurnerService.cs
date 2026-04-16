@@ -6,6 +6,6 @@ namespace CDBurner.Service.Common
 {
     public interface IBurnerService
     {
-        Task<bool> BurnFolderAsync(string folderPath, IProgress<double> progress = null);
+        Task<bool> BurnFolderAsync(string dicomPath, long dicomFolderSize, IProgress<double> progress = null);
     }
 }

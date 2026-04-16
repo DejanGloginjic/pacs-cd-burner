@@ -24,7 +24,7 @@ namespace CDBurner.Service
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
             var json = File.ReadAllText(configPath);
             var config = JsonSerializer.Deserialize<AppConfigModel>(json);
-            _baseUrl = config.ApiBaseUrl;
+            _baseUrl = config.LocalDicomUrl;
             _httpClient = new HttpClient { BaseAddress = new Uri(_baseUrl) };
         }
 
@@ -101,6 +101,11 @@ namespace CDBurner.Service
                     throw new Exception("Unexpected content type: " + contentType.MediaType);
 
                 var boundary = contentType.Parameters.First(p => p.Name == "boundary").Value.Trim('"');
+
+                if (Directory.Exists(destinationFolder))
+                {
+                    Directory.Delete(destinationFolder, true);
+                }
 
                 Directory.CreateDirectory(destinationFolder);
 

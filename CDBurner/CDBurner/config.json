@@ -1,6 +1,10 @@
 {
-  "ApiBaseUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "LocalDicomUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "ProductionDicomUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "ClientName": "CDBurner",
   "PageSize": 20,
   "CdLimit": 545259520,
-  "DvdLimit": 4487905280
+  "DvdLimit": 4487905280,
+  "WeasisFolderName": "WeasisPortable",
+  "LauncherFolderName": "Launcher"
 }

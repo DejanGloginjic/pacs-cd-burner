@@ -1,10 +1,15 @@
-﻿using CDBurner.Service.Common;
+﻿using CDBurner.Model;
+using CDBurner.Service.Common;
+using IMAPI2;
+using IMAPI2FS;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.DirectoryServices.ActiveDirectory;
 using System.IO;
-using Shell32;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Text.Json;
 using System.Windows.Controls;
 using Application = System.Windows.Application;
 
@@ -12,86 +17,127 @@ namespace CDBurner.Service
 {
     public class BurnerService : IBurnerService
     {
-        public async Task<bool> BurnFolderAsync(string folderPath, IProgress<double> progress = null)
+        public async Task<bool> BurnFolderAsync(string dicomPath, long dicomFolderSize, IProgress<double> progress = null)
         {
-            // TESTIRAJ SVE
-            string tempBurnFolder = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
-            Directory.CreateDirectory(tempBurnFolder);
+            if (!Directory.Exists(dicomPath))
+                throw new DirectoryNotFoundException(dicomPath);
+
+            MsftDiscMaster2 discMaster = null;
+            MsftDiscRecorder2 recorder = null;
+            MsftFileSystemImage fsImage = null;
+            IFileSystemImageResult result = null;
+            MsftDiscFormat2Data dataWriter = null;
+
+            string staticFilesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StaticFiles");
+
+            var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
+            var json = File.ReadAllText(configPath);
+            var config = JsonSerializer.Deserialize<AppConfigModel>(json);
+
+            string weasisPath = Path.Combine(staticFilesPath, config.WeasisFolderName);
+            string launcherPath = Path.Combine(staticFilesPath, config.LauncherFolderName);
 
             try
             {
-                // 🔹 Static files from bin
-                string staticFilesPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "StaticFiles");
+                discMaster = new MsftDiscMaster2();
 
-                // 🔹 Merge folders
-                CopyDirectory(folderPath, Path.Combine(tempBurnFolder, "DICOM"));
-                CopyDirectory(staticFilesPath, tempBurnFolder);
+                if (discMaster.Count == 0)
+                    throw new Exception(Application.Current.Resources["DriveNotFound"] as string);
 
-                // 🔹 Find DVD drive (NO Shell32)
-                var dvdDrive = DriveInfo
-                    .GetDrives()
-                    .FirstOrDefault(d => d.DriveType == DriveType.CDRom && d.IsReady);
+                string recorderId = discMaster[0];
 
-                if (dvdDrive == null)
-                    throw new Exception("No DVD drive found.");
+                recorder = new MsftDiscRecorder2();
+                recorder.InitializeDiscRecorder(recorderId);
 
-                // 🔹 Start Windows burn staging
-                var shell = new Shell32.Shell();
-                var source = shell.NameSpace(tempBurnFolder);
-                var target = shell.NameSpace(dvdDrive.RootDirectory.FullName);
+                fsImage = new MsftFileSystemImage();
+                fsImage.ChooseImageDefaults((IMAPI2FS.IDiscRecorder2)recorder);
 
-                target.CopyHere(source.Items(), 20);
+                fsImage.FileSystemsToCreate = FsiFileSystems.FsiFileSystemUDF;
+                fsImage.VolumeName = Application.Current.Resources["DiscVolumeName"] as string;
 
-                // 🔹 Progress (staging estimation)
-                await Task.Run(() =>
+                try
                 {
-                    int lastCount = -1;
-
-                    while (true)
+                    fsImage.Root.AddTree(dicomPath, true);
+                    fsImage.Root.AddTree(weasisPath, true);
+                    fsImage.Root.AddTree(launcherPath, false);
+                }
+                catch (COMException ex)
+                {
+                    if (ex.Message.Contains("larger than the current configured limit"))
                     {
-                        int count = Directory.GetFiles(tempBurnFolder, "*", SearchOption.AllDirectories).Length;
-
-                        if (count != lastCount)
-                        {
-                            progress?.Report(100 - (count * 100.0 / (count + 1)));
-                            lastCount = count;
-                        }
-
-                        if (count == 0)
-                            break;
-
-                        Thread.Sleep(500);
+                        throw new Exception(Application.Current.Resources["DiscLimitExceeded"] as string);
                     }
+
+                    throw;
+                }
+
+                result = fsImage.CreateResultImage();
+
+                dataWriter = new MsftDiscFormat2Data();
+                dataWriter.Recorder = recorder;
+                dataWriter.ClientName = config.ClientName;
+                dataWriter.ForceMediaToBeClosed = true;
+
+                IMAPI2.IMAPI_MEDIA_PHYSICAL_TYPE mediaType;
+
+                try
+                {
+                    mediaType = dataWriter.CurrentPhysicalMediaType;
+                    Debug.WriteLine(mediaType);
+                }
+                catch (COMException)
+                {
+                    throw new Exception(Application.Current.Resources["DiscNotFound"] as string);
+                }
+                
+                if (!dataWriter.MediaHeuristicallyBlank)
+                {
+                    throw new Exception(Application.Current.Resources["DiscNotEmpty"] as string);
+                }
+
+
+                var writeTask = Task.Run(() =>
+                {
+                    dataWriter.Write((IMAPI2.IStream)result.ImageStream);
                 });
 
+                double progressValue = 0;
+                while (!writeTask.IsCompleted)
+                {
+                    if (progressValue < 90)
+                        progressValue += 0.3;
+
+                    progress?.Report(progressValue);
+
+                    await Task.Delay(200);
+                }
+
+                await writeTask;
                 progress?.Report(100);
+
                 return true;
+            }
+            catch (COMException ex)
+            {
+                System.Diagnostics.Debug.WriteLine("IMAPI COM error: " + ex.Message);
+                return false;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine("Burn error: " + ex.Message);
+                throw;
             }
             finally
             {
-                try
-                {
-                    if (Directory.Exists(tempBurnFolder))
-                        Directory.Delete(tempBurnFolder, true);
-                }
-                catch { }
-            }
-        }
+                if (dataWriter != null) Marshal.ReleaseComObject(dataWriter);
+                if (result != null) Marshal.ReleaseComObject(result);
+                if (fsImage != null) Marshal.ReleaseComObject(fsImage);
+                if (recorder != null) Marshal.ReleaseComObject(recorder);
+                if (discMaster != null) Marshal.ReleaseComObject(discMaster);
 
-        private void CopyDirectory(string sourceDir, string targetDir)
-        {
-            Directory.CreateDirectory(targetDir);
-
-            foreach (var file in Directory.GetFiles(sourceDir))
-            {
-                var dest = Path.Combine(targetDir, Path.GetFileName(file));
-                File.Copy(file, dest, true);
-            }
-
-            foreach (var dir in Directory.GetDirectories(sourceDir))
-            {
-                var dest = Path.Combine(targetDir, Path.GetFileName(dir));
-                CopyDirectory(dir, dest);
+                GC.Collect();
+                GC.WaitForPendingFinalizers();
+                GC.Collect();
             }
         }
     }
