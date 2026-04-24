@@ -1,6 +1,7 @@
 bin/
 obj/
 out/
+Properties/
 
 .vs/
 *.user

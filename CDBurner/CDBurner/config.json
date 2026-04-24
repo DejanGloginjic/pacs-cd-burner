@@ -1,6 +1,6 @@
 {
-  "LocalDicomUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
-  "ProductionDicomUrl": "http://172.18.2.94:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "LocalDicomUrl": "http://172.18.2.31:8080/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
+  "ProductionDicomUrl": "http://192.168.5.250:9997/dcm4chee-arc/aets/DCM4CHEE/rs/studies",
   "ClientName": "CDBurner",
   "PageSize": 20,
   "CdLimit": 545259520,

@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.VisualBasic;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Http;
 using System.Security.Policy;
@@ -24,7 +25,7 @@ namespace CDBurner.Service
             var configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.json");
             var json = File.ReadAllText(configPath);
             var config = JsonSerializer.Deserialize<AppConfigModel>(json);
-            _baseUrl = config.LocalDicomUrl;
+            _baseUrl = config.ProductionDicomUrl;
             _httpClient = new HttpClient { BaseAddress = new Uri(_baseUrl) };
         }
 
@@ -93,7 +94,14 @@ namespace CDBurner.Service
         {
             try
             {
-                var response = await _httpClient.GetAsync(studyUrl);
+                var cts = new CancellationTokenSource(TimeSpan.FromMinutes(15));
+
+                var response = await _httpClient.GetAsync(
+                    studyUrl,
+                    HttpCompletionOption.ResponseHeadersRead,
+                    cts.Token
+                );
+
                 response.EnsureSuccessStatusCode();
 
                 var contentType = response.Content.Headers.ContentType;
@@ -148,8 +156,9 @@ namespace CDBurner.Service
 
                 return true;
             }
-            catch
+            catch (Exception ex)
             {
+                Debug.WriteLine(ex.ToString());
                 return false;
             }
         }
