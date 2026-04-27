@@ -18,7 +18,8 @@ namespace CDBurner.Service
                 Message = message,
                 IsOkVisible = Visibility.Visible,
                 IsYesNoVisible = Visibility.Collapsed,
-                IsProgressVisible = Visibility.Collapsed
+                IsProgressVisible = Visibility.Collapsed,
+                IsCancelVisible = Visibility.Collapsed
             };
 
             var dialog = new DialogWindow(vm);
@@ -33,7 +34,8 @@ namespace CDBurner.Service
                 Message = message,
                 IsOkVisible = Visibility.Visible,
                 IsYesNoVisible = Visibility.Collapsed,
-                IsProgressVisible = Visibility.Collapsed
+                IsProgressVisible = Visibility.Collapsed,
+                IsCancelVisible = Visibility.Collapsed
             };
 
             var dialog = new DialogWindow(vm);
@@ -49,6 +51,7 @@ namespace CDBurner.Service
                 IsOkVisible = Visibility.Collapsed,
                 IsYesNoVisible = Visibility.Visible,
                 IsProgressVisible = Visibility.Collapsed,
+                IsCancelVisible = Visibility.Collapsed
             };
 
             var dialog = new DialogWindow(vm);
@@ -66,6 +69,7 @@ namespace CDBurner.Service
                 IsOkVisible = Visibility.Collapsed,
                 IsYesNoVisible = Visibility.Collapsed,
                 IsProgressVisible = isProgressVisible,
+                IsCancelVisible = Visibility.Visible,
                 Progress = 0
             };
 

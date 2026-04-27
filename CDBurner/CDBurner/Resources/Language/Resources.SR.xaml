@@ -45,6 +45,7 @@
     <System:String x:Key="BurningProgress">Snimanje na optički disk...</System:String>
     <System:String x:Key="Yes">Da</System:String>
     <System:String x:Key="No">Ne</System:String>
+    <System:String x:Key="Cancel">Otkaži</System:String>
     <System:String x:Key="Understand">Razumijem</System:String>
     <System:String x:Key="Reset">Obriši pretragu</System:String>
 </ResourceDictionary>

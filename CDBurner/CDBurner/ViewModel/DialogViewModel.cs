@@ -37,13 +37,23 @@ namespace CDBurner.ViewModel
             set { _isYesNoVisible = value; OnPropertyChanged(); }
         }
 
+        private Visibility _isCancelVisible;
+        public Visibility IsCancelVisible
+        {
+            get => _isCancelVisible;
+            set { _isCancelVisible = value; OnPropertyChanged(); }
+        }
+
         public ICommand OkCommand { get; }
         public ICommand YesCommand { get; }
         public ICommand NoCommand { get; }
+        public ICommand CancelCommand { get; }
 
         public bool Result { get; private set; }
 
         public Action CloseAction { get; set; }
+
+        public CancellationTokenSource CancellationTokenSource { get; set; }
 
         private double _progress;
         public double Progress
@@ -75,6 +85,12 @@ namespace CDBurner.ViewModel
 
             NoCommand = new RelayCommand(_ =>
             {
+                Result = false;
+                CloseAction?.Invoke();
+            });
+            CancelCommand = new RelayCommand(_ =>
+            {
+                CancellationTokenSource?.Cancel();
                 Result = false;
                 CloseAction?.Invoke();
             });

@@ -16,6 +16,7 @@ namespace CDBurner.Service.Common
                                             DateTime? dateFrom,
                                             DateTime? dateTo);
         Task<bool> DownloadStudyAsync(string studyUrl,
-                                      string destinationFolder);
+                                      string destinationFolder,
+                                      CancellationToken token);
     }
 }

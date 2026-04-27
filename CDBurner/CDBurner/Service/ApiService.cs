@@ -90,16 +90,14 @@ namespace CDBurner.Service
             }
         }
 
-        public async Task<bool> DownloadStudyAsync(string studyUrl, string destinationFolder)
+        public async Task<bool> DownloadStudyAsync(string studyUrl, string destinationFolder, CancellationToken token)
         {
             try
             {
-                var cts = new CancellationTokenSource(TimeSpan.FromMinutes(15));
-
                 var response = await _httpClient.GetAsync(
                     studyUrl,
                     HttpCompletionOption.ResponseHeadersRead,
-                    cts.Token
+                    token
                 );
 
                 response.EnsureSuccessStatusCode();
@@ -125,6 +123,7 @@ namespace CDBurner.Service
 
                 while ((section = await reader.ReadNextSectionAsync()) != null)
                 {
+                    token.ThrowIfCancellationRequested();
                     string filename = null;
 
                     if (section.Headers.TryGetValue("Content-Disposition", out var values))
@@ -147,7 +146,7 @@ namespace CDBurner.Service
 
                     using (var fileStream = File.Create(filePath))
                     {
-                        await section.Body.CopyToAsync(fileStream);
+                        await section.Body.CopyToAsync(fileStream, token);
                         await fileStream.FlushAsync();
                     }
 

@@ -175,14 +175,18 @@ namespace CDBurner.ViewModel
                 if (obj is not StudyModel study)
                     return;
 
+
+                var cts = new CancellationTokenSource();
                 var progressVM = dialogService.ShowProgress(Application.Current.Resources["DownloadingProgress"] as string,
                                                             Visibility.Collapsed);
+                progressVM.CancellationTokenSource = cts;
+                progressVM.IsCancelVisible = Visibility.Visible;
 
                 try
                 {
                     string path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
                                                "CDBurner", "DICOM");
-                    bool success = await apiService.DownloadStudyAsync(study.Url, path);
+                    bool success = await apiService.DownloadStudyAsync(study.Url, path, cts.Token);
 
                     if (!success)
                         throw new Exception(Application.Current.Resources["DownloadStudiesError"] as string);
@@ -207,6 +211,7 @@ namespace CDBurner.ViewModel
                     {
                         progressVM.Message = Application.Current.Resources["BurnOnCdCanceled"] as string;
                         progressVM.IsOkVisible = Visibility.Visible;
+                        progressVM.IsCancelVisible = Visibility.Collapsed;
                         if (Directory.Exists(path))
                         {
                             Directory.Delete(path, true);
@@ -233,6 +238,7 @@ namespace CDBurner.ViewModel
                 catch (Exception ex)
                 {
                     progressVM.IsProgressVisible = Visibility.Collapsed;
+                    progressVM.IsCancelVisible = Visibility.Collapsed;
                     progressVM.Message = ex.Message;
                     progressVM.IsOkVisible = Visibility.Visible;
 
@@ -240,6 +246,7 @@ namespace CDBurner.ViewModel
                 }
 
                 progressVM.IsProgressVisible = Visibility.Collapsed;
+                progressVM.IsCancelVisible = Visibility.Collapsed;
                 progressVM.Message = Application.Current.Resources["BurnOnCdSuccessful"] as string;
                 progressVM.IsOkVisible = Visibility.Visible;
             });
